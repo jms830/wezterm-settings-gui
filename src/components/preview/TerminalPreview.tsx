@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useMemo } from "react";
 import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
 import { CanvasAddon } from "@xterm/addon-canvas";
 import { useConfigStore } from "@/lib/store/config-store";
 import "@xterm/xterm/css/xterm.css";
@@ -58,7 +57,6 @@ const DEFAULT_BRIGHTS = [
 export function TerminalPreview() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
-  const fitAddonRef = useRef<FitAddon | null>(null);
   const isInitializedRef = useRef(false);
 
   // Get config values with type safety
@@ -130,8 +128,6 @@ export function TerminalPreview() {
     
     let isMounted = true;
     let terminal: Terminal | null = null;
-    let fitAddon: FitAddon | null = null;
-    let resizeObserver: ResizeObserver | null = null;
 
     const initTerminal = async () => {
       // Wait for fonts to be ready to ensure correct metrics
@@ -145,24 +141,27 @@ export function TerminalPreview() {
       
       isInitializedRef.current = true;
 
+      // Use a larger font for the preview to ensure readability
+      // Don't use FitAddon - it causes the font to shrink to fit many columns
+      const previewFontSize = Math.max(fontSize, 16); // Minimum 16px for readability
+      
       terminal = new Terminal({
         fontFamily,
-        fontSize,
+        fontSize: previewFontSize,
         lineHeight,
         cursorStyle: mapCursorStyle(cursorStyle),
         cursorBlink: shouldCursorBlink(cursorStyle) && cursorBlinkRate > 0,
         theme,
         allowTransparency: true,
         disableStdin: true, // Read-only preview
-        rows: 15,
-        cols: 60,
+        rows: 12,  // Fixed rows for consistent preview
+        cols: 80,  // Standard terminal width
         letterSpacing: 0,
       });
 
       const canvasAddon = new CanvasAddon();
-      fitAddon = new FitAddon();
       terminal.loadAddon(canvasAddon);
-      terminal.loadAddon(fitAddon);
+      // Don't use FitAddon - let the terminal be a fixed size for readability
 
       terminal.open(terminalRef.current);
       
@@ -170,31 +169,13 @@ export function TerminalPreview() {
       terminal.write(DEMO_CONTENT);
 
       xtermRef.current = terminal;
-      fitAddonRef.current = fitAddon;
 
-      // Fit after a small delay to allow DOM to settle
+      // Force refresh after a short delay to ensure proper rendering
       setTimeout(() => {
-        if (isMounted && fitAddon && terminal) {
-          fitAddon.fit();
-          // Force refresh to fix any character measurement issues
+        if (isMounted && terminal) {
           terminal.refresh(0, terminal.rows - 1);
         }
       }, 50);
-
-      // Handle resize with debounce
-      let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
-      resizeObserver = new ResizeObserver(() => {
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          if (isMounted && fitAddon) {
-            fitAddon.fit();
-          }
-        }, 50);
-      });
-      
-      if (terminalRef.current) {
-        resizeObserver.observe(terminalRef.current);
-      }
     };
     
     initTerminal();
@@ -203,16 +184,11 @@ export function TerminalPreview() {
       isMounted = false;
       isInitializedRef.current = false;
       
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
-      
       if (terminal) {
         terminal.dispose();
       }
       
       xtermRef.current = null;
-      fitAddonRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount - updates handled in separate effect
@@ -230,9 +206,9 @@ export function TerminalPreview() {
     terminal.options.theme = theme;
     terminal.options.letterSpacing = 0;
 
-    // Re-fit after font changes
+    // Refresh terminal after changes
     requestAnimationFrame(() => {
-      fitAddonRef.current?.fit();
+      terminal.refresh(0, terminal.rows - 1);
     });
   }, [fontFamily, fontSize, lineHeight, cursorStyle, cursorBlinkRate, theme]);
 
