@@ -63,7 +63,11 @@ export function TerminalPreview() {
   // Get config values with type safety
   const getValue = useConfigStore((state) => state.getValue);
 
-  const fontFamily = (getValue("font_family") as string) || "JetBrains Mono, monospace";
+  // Build font family with proper fallbacks for the preview
+  // The user's configured font is shown but we use web-safe fallbacks for rendering
+  const configuredFont = (getValue("font_family") as string) || "JetBrains Mono";
+  // Use var(--font-jetbrains-mono) which is loaded via next/font, with web-safe monospace fallbacks
+  const fontFamily = `${configuredFont}, var(--font-jetbrains-mono), "Cascadia Code", "Fira Code", "SF Mono", Consolas, "Liberation Mono", Menlo, Monaco, monospace`;
   const fontSize = (getValue("font_size") as number) || 14;
   const lineHeight = (getValue("line_height") as number) || 1.0;
   const cursorStyle = (getValue("default_cursor_style") as string) || "SteadyBlock";

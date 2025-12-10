@@ -4,7 +4,7 @@ A visual configuration editor for [WezTerm](https://wezfurlong.org/wezterm/) ter
 
 ## Live Demo
 
-**[wezterm-settings.vercel.app](https://wezterm-settings.vercel.app)** *(coming soon)*
+**[wezterm-settings-gui.vercel.app](https://wezterm-settings-gui.vercel.app)**
 
 ## Features
 

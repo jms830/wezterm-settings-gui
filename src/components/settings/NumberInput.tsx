@@ -34,7 +34,7 @@ export function NumberInput({ option }: NumberInputProps) {
 
   return (
     <SettingWrapper option={option}>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 max-w-md">
         {showSlider && (
           <Slider
             value={[value]}
@@ -42,7 +42,7 @@ export function NumberInput({ option }: NumberInputProps) {
             min={option.min}
             max={option.max}
             step={"step" in option ? option.step ?? 1 : 1}
-            className="flex-1"
+            className="w-48 shrink-0"
           />
         )}
         
@@ -57,7 +57,7 @@ export function NumberInput({ option }: NumberInputProps) {
             min={option.min}
             max={option.max}
             step={"step" in option ? option.step ?? 1 : 1}
-            className="w-24 font-mono"
+            className="w-20 font-mono"
           />
           {option.unit && (
             <span className="text-sm text-muted-foreground">

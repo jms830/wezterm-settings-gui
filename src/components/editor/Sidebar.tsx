@@ -99,7 +99,7 @@ export function Sidebar() {
             asChild
           >
             <a
-              href="https://github.com/yourusername/wezterm-settings-gui"
+              href="https://github.com/jms830/wezterm-settings-gui"
               target="_blank"
               rel="noopener noreferrer"
             >
