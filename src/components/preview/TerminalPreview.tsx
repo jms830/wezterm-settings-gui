@@ -136,51 +136,57 @@ export function TerminalPreview() {
       
       isInitializedRef.current = true;
 
-      terminal = new Terminal({
-        fontFamily,
-        fontSize,
-        lineHeight,
-        cursorStyle: mapCursorStyle(cursorStyle),
-        cursorBlink: shouldCursorBlink(cursorStyle) && cursorBlinkRate > 0,
-        theme,
-        allowTransparency: true,
-        disableStdin: true, // Read-only preview
-        rows: 15,
-        cols: 60,
-      });
+      // Wait for fonts to be ready before initializing to ensure correct metrics
+      document.fonts.ready.then(() => {
+        if (!isMounted || !terminalRef.current) return;
 
-      fitAddon = new FitAddon();
-      terminal.loadAddon(fitAddon);
+        terminal = new Terminal({
+          fontFamily,
+          fontSize,
+          lineHeight,
+          cursorStyle: mapCursorStyle(cursorStyle),
+          cursorBlink: shouldCursorBlink(cursorStyle) && cursorBlinkRate > 0,
+          theme,
+          allowTransparency: true,
+          disableStdin: true, // Read-only preview
+          rows: 15,
+          cols: 60,
+          letterSpacing: 0, // Force 0 to prevent wide spacing issues
+        });
 
-      terminal.open(terminalRef.current);
-      
-      // Delay fit to ensure DOM is ready
-      requestAnimationFrame(() => {
-        if (isMounted && fitAddon) {
-          fitAddon.fit();
-        }
-      });
+        fitAddon = new FitAddon();
+        terminal.loadAddon(fitAddon);
 
-      // Write demo content
-      terminal.write(DEMO_CONTENT);
-
-      xtermRef.current = terminal;
-      fitAddonRef.current = fitAddon;
-
-      // Handle resize with debounce
-      let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
-      resizeObserver = new ResizeObserver(() => {
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
+        terminal.open(terminalRef.current);
+        
+        // Delay fit to ensure DOM is ready
+        requestAnimationFrame(() => {
           if (isMounted && fitAddon) {
             fitAddon.fit();
           }
-        }, 50);
+        });
+
+        // Write demo content
+        terminal.write(DEMO_CONTENT);
+
+        xtermRef.current = terminal;
+        fitAddonRef.current = fitAddon;
+
+        // Handle resize with debounce
+        let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+        resizeObserver = new ResizeObserver(() => {
+          if (resizeTimeout) clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            if (isMounted && fitAddon) {
+              fitAddon.fit();
+            }
+          }, 50);
+        });
+        
+        if (terminalRef.current) {
+          resizeObserver.observe(terminalRef.current);
+        }
       });
-      
-      if (terminalRef.current) {
-        resizeObserver.observe(terminalRef.current);
-      }
     };
     
     initTerminal();
@@ -214,6 +220,7 @@ export function TerminalPreview() {
     terminal.options.cursorStyle = mapCursorStyle(cursorStyle);
     terminal.options.cursorBlink = shouldCursorBlink(cursorStyle) && cursorBlinkRate > 0;
     terminal.options.theme = theme;
+    terminal.options.letterSpacing = 0;
 
     // Re-fit after font changes
     requestAnimationFrame(() => {
