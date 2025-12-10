@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WezTerm Settings GUI
 
-## Getting Started
+A visual configuration editor for [WezTerm](https://wezfurlong.org/wezterm/) terminal emulator. Configure your terminal settings with a modern web interface and export a ready-to-use `wezterm.lua` configuration file.
 
-First, run the development server:
+## Live Demo
+
+**[wezterm-settings.vercel.app](https://wezterm-settings.vercel.app)** *(coming soon)*
+
+## Features
+
+- **Visual Settings Editor** - Configure fonts, colors, window behavior, cursor styles, GPU settings, and more
+- **16 Pre-built Color Schemes** - Choose from popular themes like Catppuccin, Dracula, Tokyo Night, and more
+- **Live Terminal Preview** - See your changes in real-time with an embedded terminal preview
+- **Custom Keybindings** - Create and edit keybindings with a visual key capture interface
+- **Import/Export** - Import existing `wezterm.lua` configs and export your customizations
+- **Command Palette** - Quick search across all settings with `Cmd/Ctrl + K`
+- **Persistent State** - Your settings are saved in your browser automatically
+
+## Usage
+
+1. Visit the web app
+2. Configure your settings using the visual interface
+3. Click **Export** to download your `wezterm.lua` file
+4. Place the file in your WezTerm config directory:
+   - **Linux/macOS**: `~/.wezterm.lua` or `~/.config/wezterm/wezterm.lua`
+   - **Windows**: `%USERPROFILE%\.wezterm.lua`
+
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+# Install dependencies
+bun install
+
+# Start development server
 bun dev
+
+# Build for production
+bun run build
+
+# Run linting
+bun run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js 16 (App Router)
+- **UI**: React 19, Tailwind CSS v4, shadcn/ui (Radix primitives)
+- **State**: Zustand with localStorage persistence
+- **Terminal Preview**: xterm.js
+- **Package Manager**: Bun
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Roadmap
 
-## Learn More
+- [ ] Companion CLI for direct file system access (`npx wezterm-settings`)
+- [ ] More WezTerm options coverage
+- [ ] Keybinding conflict detection
+- [ ] Undo/Redo support
+- [ ] Drag-and-drop keybinding reorder
 
-To learn more about Next.js, take a look at the following resources:
+## Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

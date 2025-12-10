@@ -1,6 +1,21 @@
 {
-  "name": "wezterm-settings-ui-temp",
+  "name": "wezterm-settings-gui",
   "version": "0.1.0",
+  "description": "A visual configuration editor for WezTerm terminal emulator",
+  "author": "jordan-bravo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jordan-bravo/wezterm-settings-gui"
+  },
+  "keywords": [
+    "wezterm",
+    "terminal",
+    "configuration",
+    "settings",
+    "editor",
+    "gui"
+  ],
   "private": true,
   "scripts": {
     "dev": "next dev",
