@@ -172,6 +172,16 @@ export function TerminalPreview() {
         xtermRef.current = terminal;
         fitAddonRef.current = fitAddon;
 
+        // Force a re-measure after a short delay to allow layout to settle
+        // This fixes the issue where xterm calculates cell width before the font is fully active
+        setTimeout(() => {
+          if (isMounted && fitAddon && terminal) {
+            // Force a refresh of the character measure
+            terminal.refresh(0, terminal.rows - 1);
+            fitAddon.fit();
+          }
+        }, 100);
+
         // Handle resize with debounce
         let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
         resizeObserver = new ResizeObserver(() => {
@@ -235,7 +245,7 @@ export function TerminalPreview() {
       </div>
       <div 
         ref={terminalRef}
-        className="flex-1 p-2"
+        className="flex-1 p-2 min-h-0 overflow-hidden"
         style={{ backgroundColor: background }}
         role="img"
         aria-label="Terminal preview showing your configuration"

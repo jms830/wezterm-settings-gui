@@ -133,9 +133,14 @@
 
 /* Ensure xterm canvas renders text correctly */
 .xterm-screen {
-  letter-spacing: normal !important;
+  letter-spacing: 0 !important;
 }
 
 .xterm-rows {
-  letter-spacing: normal !important;
+  letter-spacing: 0 !important;
+}
+
+/* Fix for high-DPI displays */
+.xterm-screen canvas {
+  letter-spacing: 0 !important;
 }
