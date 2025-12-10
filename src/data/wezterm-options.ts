@@ -29,7 +29,7 @@ const fontOptions: ConfigOption[] = [
     name: "Font Size",
     description: "Font size in points.",
     type: "number",
-    default: 12.0,
+    default: 14.0,
     min: 6,
     max: 72,
     step: 0.5,
