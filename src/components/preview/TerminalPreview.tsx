@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import { Terminal } from "@xterm/xterm";
 import { CanvasAddon } from "@xterm/addon-canvas";
+import { FitAddon } from "@xterm/addon-fit";
 import { useConfigStore } from "@/lib/store/config-store";
 import "@xterm/xterm/css/xterm.css";
 
@@ -28,19 +29,19 @@ function shouldCursorBlink(weztermStyle: string): boolean {
 }
 
 // Demo content to display in the terminal preview
+// Keep lines short to avoid wrapping at narrow widths
 const DEMO_CONTENT = `\x1b[1;34m$\x1b[0m ls -la
-\x1b[1;36mdrwxr-xr-x\x1b[0m  5 user user 4096 Dec  9 10:30 \x1b[1;34m.\x1b[0m
-\x1b[1;36mdrwxr-xr-x\x1b[0m 12 user user 4096 Dec  9 10:30 \x1b[1;34m..\x1b[0m
-\x1b[1;36m-rw-r--r--\x1b[0m  1 user user  220 Dec  9 10:30 .bash_logout
-\x1b[1;36m-rw-r--r--\x1b[0m  1 user user 3526 Dec  9 10:30 .bashrc
-\x1b[1;32m-rwxr-xr-x\x1b[0m  1 user user 8192 Dec  9 10:30 \x1b[1;32mwezterm.lua\x1b[0m
+\x1b[1;36mdrwxr-xr-x\x1b[0m  user  4096  \x1b[1;34m.\x1b[0m
+\x1b[1;36mdrwxr-xr-x\x1b[0m  user  4096  \x1b[1;34m..\x1b[0m
+\x1b[1;36m-rw-r--r--\x1b[0m  user   220  .bashrc
+\x1b[1;32m-rwxr-xr-x\x1b[0m  user  8192  \x1b[1;32mwezterm.lua\x1b[0m
 
 \x1b[1;34m$\x1b[0m echo "Hello, \x1b[1;33mWezTerm\x1b[0m!"
 Hello, \x1b[1;33mWezTerm\x1b[0m!
 
 \x1b[1;34m$\x1b[0m cat colors.txt
-\x1b[30mBlack\x1b[0m   \x1b[31mRed\x1b[0m     \x1b[32mGreen\x1b[0m   \x1b[33mYellow\x1b[0m
-\x1b[34mBlue\x1b[0m    \x1b[35mMagenta\x1b[0m \x1b[36mCyan\x1b[0m    \x1b[37mWhite\x1b[0m
+\x1b[31mRed\x1b[0m \x1b[32mGreen\x1b[0m \x1b[33mYellow\x1b[0m \x1b[34mBlue\x1b[0m
+\x1b[35mMagenta\x1b[0m \x1b[36mCyan\x1b[0m \x1b[37mWhite\x1b[0m
 
 \x1b[1;34m$\x1b[0m \x1b[5m_\x1b[0m`;
 
@@ -141,9 +142,8 @@ export function TerminalPreview() {
       
       isInitializedRef.current = true;
 
-      // Use a larger font for the preview to ensure readability
-      // Don't use FitAddon - it causes the font to shrink to fit many columns
-      const previewFontSize = Math.max(fontSize, 16); // Minimum 16px for readability
+      // Use a reasonable font size for the preview
+      const previewFontSize = Math.max(fontSize, 14); // Minimum 14px for readability
       
       terminal = new Terminal({
         fontFamily,
@@ -154,28 +154,34 @@ export function TerminalPreview() {
         theme,
         allowTransparency: true,
         disableStdin: true, // Read-only preview
-        rows: 12,  // Fixed rows for consistent preview
-        cols: 80,  // Standard terminal width
+        rows: 14,
+        cols: 80,
         letterSpacing: 0,
       });
 
       const canvasAddon = new CanvasAddon();
+      const fitAddon = new FitAddon();
       terminal.loadAddon(canvasAddon);
-      // Don't use FitAddon - let the terminal be a fixed size for readability
+      terminal.loadAddon(fitAddon);
 
       terminal.open(terminalRef.current);
       
-      // Write demo content immediately
+      // Fit terminal to container, then write content
+      fitAddon.fit();
       terminal.write(DEMO_CONTENT);
 
       xtermRef.current = terminal;
 
-      // Force refresh after a short delay to ensure proper rendering
-      setTimeout(() => {
-        if (isMounted && terminal) {
-          terminal.refresh(0, terminal.rows - 1);
+      // Handle resize
+      const resizeObserver = new ResizeObserver(() => {
+        if (isMounted) {
+          fitAddon.fit();
         }
-      }, 50);
+      });
+      resizeObserver.observe(terminalRef.current);
+
+      // Store for cleanup
+      (terminal as unknown as { _resizeObserver: ResizeObserver })._resizeObserver = resizeObserver;
     };
     
     initTerminal();
@@ -185,6 +191,10 @@ export function TerminalPreview() {
       isInitializedRef.current = false;
       
       if (terminal) {
+        const resizeObserver = (terminal as unknown as { _resizeObserver?: ResizeObserver })._resizeObserver;
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
         terminal.dispose();
       }
       
