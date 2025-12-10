@@ -67,7 +67,8 @@ export function TerminalPreview() {
   // The user's configured font is shown but we use web-safe fallbacks for rendering
   const configuredFont = (getValue("font_family") as string) || "JetBrains Mono";
   // Use var(--font-jetbrains-mono) which is loaded via next/font, with web-safe monospace fallbacks
-  const fontFamily = `${configuredFont}, var(--font-jetbrains-mono), "Cascadia Code", "Fira Code", "SF Mono", Consolas, "Liberation Mono", Menlo, Monaco, monospace`;
+  const fontFamily = `${configuredFont}, var(--font-terminal), "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", Consolas, "Liberation Mono", Menlo, Monaco, monospace`;
+  
   const fontSize = (getValue("font_size") as number) || 14;
   const lineHeight = (getValue("line_height") as number) || 1.0;
   const cursorStyle = (getValue("default_cursor_style") as string) || "SteadyBlock";
@@ -131,72 +132,66 @@ export function TerminalPreview() {
     let fitAddon: FitAddon | null = null;
     let resizeObserver: ResizeObserver | null = null;
 
-    const initTerminal = () => {
+    const initTerminal = async () => {
+      // Wait for fonts to be ready to ensure correct metrics
+      try {
+        await document.fonts.ready;
+      } catch (e) {
+        console.warn("Font loading check failed", e);
+      }
+      
       if (!isMounted || !terminalRef.current) return;
       
       isInitializedRef.current = true;
 
-      // Wait for fonts to be ready before initializing to ensure correct metrics
-      document.fonts.ready.then(() => {
-        if (!isMounted || !terminalRef.current) return;
+      terminal = new Terminal({
+        fontFamily,
+        fontSize,
+        lineHeight,
+        cursorStyle: mapCursorStyle(cursorStyle),
+        cursorBlink: shouldCursorBlink(cursorStyle) && cursorBlinkRate > 0,
+        theme,
+        allowTransparency: true,
+        disableStdin: true, // Read-only preview
+        rows: 15,
+        cols: 60,
+        letterSpacing: 0,
+      });
 
-        terminal = new Terminal({
-          fontFamily,
-          fontSize,
-          lineHeight,
-          cursorStyle: mapCursorStyle(cursorStyle),
-          cursorBlink: shouldCursorBlink(cursorStyle) && cursorBlinkRate > 0,
-          theme,
-          allowTransparency: true,
-          disableStdin: true, // Read-only preview
-          rows: 15,
-          cols: 60,
-          letterSpacing: 0, // Force 0 to prevent wide spacing issues
-        });
+      fitAddon = new FitAddon();
+      terminal.loadAddon(fitAddon);
 
-        fitAddon = new FitAddon();
-        terminal.loadAddon(fitAddon);
+      terminal.open(terminalRef.current);
+      
+      // Write demo content immediately
+      terminal.write(DEMO_CONTENT);
 
-        terminal.open(terminalRef.current);
-        
-        // Delay fit to ensure DOM is ready
-        requestAnimationFrame(() => {
+      xtermRef.current = terminal;
+      fitAddonRef.current = fitAddon;
+
+      // Fit after a small delay to allow DOM to settle
+      setTimeout(() => {
+        if (isMounted && fitAddon && terminal) {
+          fitAddon.fit();
+          // Force refresh to fix any character measurement issues
+          terminal.refresh(0, terminal.rows - 1);
+        }
+      }, 50);
+
+      // Handle resize with debounce
+      let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
           if (isMounted && fitAddon) {
             fitAddon.fit();
           }
-        });
-
-        // Write demo content
-        terminal.write(DEMO_CONTENT);
-
-        xtermRef.current = terminal;
-        fitAddonRef.current = fitAddon;
-
-        // Force a re-measure after a short delay to allow layout to settle
-        // This fixes the issue where xterm calculates cell width before the font is fully active
-        setTimeout(() => {
-          if (isMounted && fitAddon && terminal) {
-            // Force a refresh of the character measure
-            terminal.refresh(0, terminal.rows - 1);
-            fitAddon.fit();
-          }
-        }, 100);
-
-        // Handle resize with debounce
-        let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
-        resizeObserver = new ResizeObserver(() => {
-          if (resizeTimeout) clearTimeout(resizeTimeout);
-          resizeTimeout = setTimeout(() => {
-            if (isMounted && fitAddon) {
-              fitAddon.fit();
-            }
-          }, 50);
-        });
-        
-        if (terminalRef.current) {
-          resizeObserver.observe(terminalRef.current);
-        }
+        }, 50);
       });
+      
+      if (terminalRef.current) {
+        resizeObserver.observe(terminalRef.current);
+      }
     };
     
     initTerminal();
