@@ -286,24 +286,32 @@ export function ExportPanel() {
               {luaPreview}
             </pre>
           </ScrollArea>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={handleCopy}>
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Copy
-                </>
-              )}
-            </Button>
-            <Button onClick={handleDownload}>
-              <Download className="h-4 w-4 mr-2" aria-hidden="true" />
-              Download
-            </Button>
+          <div className="flex items-center justify-between gap-4 mt-4">
+            <p className="text-xs text-muted-foreground">
+              Save this file to{" "}
+              <code className="px-1.5 py-0.5 bg-muted rounded text-foreground">
+                ~/.config/wezterm/wezterm.lua
+              </code>
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleCopy}>
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" aria-hidden="true" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 mr-2" aria-hidden="true" />
+                    Copy
+                  </>
+                )}
+              </Button>
+              <Button onClick={handleDownload}>
+                <Download className="h-4 w-4 mr-2" aria-hidden="true" />
+                Download
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

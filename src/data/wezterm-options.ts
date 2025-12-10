@@ -14,6 +14,8 @@ import type {
 // Font Options
 // ============================================================================
 
+const WEZTERM_DOCS = "https://wezfurlong.org/wezterm/config/lua/config";
+
 const fontOptions: ConfigOption[] = [
   {
     id: "font_family",
@@ -23,6 +25,7 @@ const fontOptions: ConfigOption[] = [
     default: "JetBrains Mono",
     category: "fonts",
     placeholder: "JetBrains Mono, Fira Code, monospace",
+    docUrl: `${WEZTERM_DOCS}/font.html`,
   } as StringOption,
   {
     id: "font_size",
@@ -35,6 +38,7 @@ const fontOptions: ConfigOption[] = [
     step: 0.5,
     category: "fonts",
     unit: "pt",
+    docUrl: `${WEZTERM_DOCS}/font_size.html`,
   } as NumberOption,
   {
     id: "font_weight",
@@ -43,6 +47,7 @@ const fontOptions: ConfigOption[] = [
     type: "enum",
     default: "Regular",
     category: "fonts",
+    docUrl: `${WEZTERM_DOCS}/font.html`,
     options: [
       { value: "Thin", label: "Thin" },
       { value: "ExtraLight", label: "Extra Light" },
@@ -62,6 +67,7 @@ const fontOptions: ConfigOption[] = [
     type: "enum",
     default: "Bold",
     category: "fonts",
+    docUrl: `${WEZTERM_DOCS}/font.html`,
     options: [
       { value: "Thin", label: "Thin" },
       { value: "ExtraLight", label: "Extra Light" },
@@ -84,6 +90,7 @@ const fontOptions: ConfigOption[] = [
     max: 2.0,
     step: 0.05,
     category: "fonts",
+    docUrl: `${WEZTERM_DOCS}/line_height.html`,
   } as NumberOption,
   {
     id: "cell_width",
@@ -95,6 +102,7 @@ const fontOptions: ConfigOption[] = [
     max: 2.0,
     step: 0.05,
     category: "fonts",
+    docUrl: `${WEZTERM_DOCS}/cell_width.html`,
   } as NumberOption,
   {
     id: "freetype_load_target",
@@ -104,6 +112,7 @@ const fontOptions: ConfigOption[] = [
     default: "Normal",
     category: "fonts",
     subcategory: "Rendering",
+    docUrl: `${WEZTERM_DOCS}/freetype_load_target.html`,
     options: [
       { value: "Normal", label: "Normal", description: "Default hinting" },
       { value: "Light", label: "Light", description: "Lighter hinting" },
@@ -119,6 +128,7 @@ const fontOptions: ConfigOption[] = [
     default: "Normal",
     category: "fonts",
     subcategory: "Rendering",
+    docUrl: `${WEZTERM_DOCS}/freetype_render_target.html`,
     options: [
       { value: "Normal", label: "Normal" },
       { value: "Light", label: "Light" },
@@ -141,6 +151,7 @@ const colorOptions: ConfigOption[] = [
     default: "",
     category: "colors",
     placeholder: "Catppuccin Mocha",
+    docUrl: `${WEZTERM_DOCS}/color_scheme.html`,
   } as StringOption,
   {
     id: "foreground",
@@ -150,6 +161,7 @@ const colorOptions: ConfigOption[] = [
     default: "#cdd6f4",
     category: "colors",
     subcategory: "Base Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "background",
@@ -159,6 +171,7 @@ const colorOptions: ConfigOption[] = [
     default: "#1e1e2e",
     category: "colors",
     subcategory: "Base Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "cursor_bg",
@@ -168,6 +181,7 @@ const colorOptions: ConfigOption[] = [
     default: "#f5e0dc",
     category: "colors",
     subcategory: "Cursor Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "cursor_fg",
@@ -177,6 +191,7 @@ const colorOptions: ConfigOption[] = [
     default: "#1e1e2e",
     category: "colors",
     subcategory: "Cursor Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "cursor_border",
@@ -186,6 +201,7 @@ const colorOptions: ConfigOption[] = [
     default: "#f5e0dc",
     category: "colors",
     subcategory: "Cursor Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "selection_bg",
@@ -195,6 +211,7 @@ const colorOptions: ConfigOption[] = [
     default: "#45475a",
     category: "colors",
     subcategory: "Selection Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "selection_fg",
@@ -204,6 +221,7 @@ const colorOptions: ConfigOption[] = [
     default: "#cdd6f4",
     category: "colors",
     subcategory: "Selection Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as ColorOption,
   {
     id: "ansi",
@@ -217,6 +235,7 @@ const colorOptions: ConfigOption[] = [
     size: 8,
     category: "colors",
     subcategory: "ANSI Palette",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as PaletteOption,
   {
     id: "brights",
@@ -230,6 +249,7 @@ const colorOptions: ConfigOption[] = [
     size: 8,
     category: "colors",
     subcategory: "ANSI Palette",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as PaletteOption,
 ];
 
@@ -248,6 +268,7 @@ const windowOptions: ConfigOption[] = [
     max: 1.0,
     step: 0.05,
     category: "window",
+    docUrl: `${WEZTERM_DOCS}/window_background_opacity.html`,
   } as NumberOption,
   {
     id: "window_decorations",
@@ -256,6 +277,7 @@ const windowOptions: ConfigOption[] = [
     type: "enum",
     default: "FULL",
     category: "window",
+    docUrl: `${WEZTERM_DOCS}/window_decorations.html`,
     options: [
       { value: "FULL", label: "Full", description: "Standard title bar and borders" },
       { value: "RESIZE", label: "Resize Only", description: "No title bar, resizable borders" },
@@ -276,6 +298,7 @@ const windowOptions: ConfigOption[] = [
     category: "window",
     subcategory: "Padding",
     unit: "px",
+    docUrl: `${WEZTERM_DOCS}/window_padding.html`,
   } as NumberOption,
   {
     id: "window_padding_right",
@@ -289,6 +312,7 @@ const windowOptions: ConfigOption[] = [
     category: "window",
     subcategory: "Padding",
     unit: "px",
+    docUrl: `${WEZTERM_DOCS}/window_padding.html`,
   } as NumberOption,
   {
     id: "window_padding_top",
@@ -302,6 +326,7 @@ const windowOptions: ConfigOption[] = [
     category: "window",
     subcategory: "Padding",
     unit: "px",
+    docUrl: `${WEZTERM_DOCS}/window_padding.html`,
   } as NumberOption,
   {
     id: "window_padding_bottom",
@@ -315,6 +340,7 @@ const windowOptions: ConfigOption[] = [
     category: "window",
     subcategory: "Padding",
     unit: "px",
+    docUrl: `${WEZTERM_DOCS}/window_padding.html`,
   } as NumberOption,
   {
     id: "enable_tab_bar",
@@ -324,6 +350,7 @@ const windowOptions: ConfigOption[] = [
     default: true,
     category: "window",
     subcategory: "Tab Bar",
+    docUrl: `${WEZTERM_DOCS}/enable_tab_bar.html`,
   } as BooleanOption,
   {
     id: "hide_tab_bar_if_only_one_tab",
@@ -333,6 +360,7 @@ const windowOptions: ConfigOption[] = [
     default: false,
     category: "window",
     subcategory: "Tab Bar",
+    docUrl: `${WEZTERM_DOCS}/hide_tab_bar_if_only_one_tab.html`,
   } as BooleanOption,
   {
     id: "use_fancy_tab_bar",
@@ -342,6 +370,7 @@ const windowOptions: ConfigOption[] = [
     default: true,
     category: "window",
     subcategory: "Tab Bar",
+    docUrl: `${WEZTERM_DOCS}/use_fancy_tab_bar.html`,
   } as BooleanOption,
   {
     id: "tab_bar_at_bottom",
@@ -351,6 +380,7 @@ const windowOptions: ConfigOption[] = [
     default: false,
     category: "window",
     subcategory: "Tab Bar",
+    docUrl: `${WEZTERM_DOCS}/tab_bar_at_bottom.html`,
   } as BooleanOption,
   {
     id: "tab_max_width",
@@ -363,6 +393,7 @@ const windowOptions: ConfigOption[] = [
     step: 1,
     category: "window",
     subcategory: "Tab Bar",
+    docUrl: `${WEZTERM_DOCS}/tab_max_width.html`,
   } as NumberOption,
   {
     id: "show_tab_index_in_tab_bar",
@@ -372,6 +403,7 @@ const windowOptions: ConfigOption[] = [
     default: false,
     category: "window",
     subcategory: "Tab Bar",
+    docUrl: `${WEZTERM_DOCS}/show_tab_index_in_tab_bar.html`,
   } as BooleanOption,
   {
     id: "window_close_confirmation",
@@ -380,6 +412,7 @@ const windowOptions: ConfigOption[] = [
     type: "enum",
     default: "AlwaysPrompt",
     category: "window",
+    docUrl: `${WEZTERM_DOCS}/window_close_confirmation.html`,
     options: [
       { value: "AlwaysPrompt", label: "Always Prompt" },
       { value: "NeverPrompt", label: "Never Prompt" },
@@ -396,6 +429,7 @@ const windowOptions: ConfigOption[] = [
     step: 1,
     category: "window",
     subcategory: "Size",
+    docUrl: `${WEZTERM_DOCS}/initial_cols.html`,
   } as NumberOption,
   {
     id: "initial_rows",
@@ -408,6 +442,7 @@ const windowOptions: ConfigOption[] = [
     step: 1,
     category: "window",
     subcategory: "Size",
+    docUrl: `${WEZTERM_DOCS}/initial_rows.html`,
   } as NumberOption,
 ];
 
@@ -423,6 +458,7 @@ const cursorOptions: ConfigOption[] = [
     type: "enum",
     default: "SteadyBlock",
     category: "cursor",
+    docUrl: `${WEZTERM_DOCS}/default_cursor_style.html`,
     options: [
       { value: "SteadyBlock", label: "Steady Block" },
       { value: "BlinkingBlock", label: "Blinking Block" },
@@ -443,6 +479,7 @@ const cursorOptions: ConfigOption[] = [
     step: 50,
     category: "cursor",
     unit: "ms",
+    docUrl: `${WEZTERM_DOCS}/cursor_blink_rate.html`,
   } as NumberOption,
   {
     id: "cursor_blink_ease_in",
@@ -452,6 +489,7 @@ const cursorOptions: ConfigOption[] = [
     default: "EaseIn",
     category: "cursor",
     subcategory: "Animation",
+    docUrl: `${WEZTERM_DOCS}/cursor_blink_ease_in.html`,
     options: [
       { value: "Linear", label: "Linear" },
       { value: "EaseIn", label: "Ease In" },
@@ -468,6 +506,7 @@ const cursorOptions: ConfigOption[] = [
     default: "EaseOut",
     category: "cursor",
     subcategory: "Animation",
+    docUrl: `${WEZTERM_DOCS}/cursor_blink_ease_out.html`,
     options: [
       { value: "Linear", label: "Linear" },
       { value: "EaseIn", label: "Ease In" },
@@ -487,6 +526,7 @@ const cursorOptions: ConfigOption[] = [
     step: 1,
     category: "cursor",
     subcategory: "Animation",
+    docUrl: `${WEZTERM_DOCS}/animation_fps.html`,
   } as NumberOption,
   {
     id: "force_reverse_video_cursor",
@@ -495,6 +535,7 @@ const cursorOptions: ConfigOption[] = [
     type: "boolean",
     default: false,
     category: "cursor",
+    docUrl: `${WEZTERM_DOCS}/force_reverse_video_cursor.html`,
   } as BooleanOption,
 ];
 
@@ -510,6 +551,7 @@ const gpuOptions: ConfigOption[] = [
     type: "enum",
     default: "WebGpu",
     category: "gpu",
+    docUrl: `${WEZTERM_DOCS}/front_end.html`,
     options: [
       { value: "WebGpu", label: "WebGPU", description: "Modern, fastest option (recommended)" },
       { value: "OpenGL", label: "OpenGL", description: "Legacy graphics API" },
@@ -523,6 +565,7 @@ const gpuOptions: ConfigOption[] = [
     type: "enum",
     default: "HighPerformance",
     category: "gpu",
+    docUrl: `${WEZTERM_DOCS}/webgpu_power_preference.html`,
     options: [
       { value: "HighPerformance", label: "High Performance", description: "Use discrete GPU" },
       { value: "LowPower", label: "Low Power", description: "Use integrated GPU" },
@@ -538,6 +581,7 @@ const gpuOptions: ConfigOption[] = [
     max: 240,
     step: 1,
     category: "gpu",
+    docUrl: `${WEZTERM_DOCS}/max_fps.html`,
   } as NumberOption,
 ];
 
@@ -556,6 +600,7 @@ const generalOptions: ConfigOption[] = [
     max: 100000,
     step: 500,
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/scrollback_lines.html`,
   } as NumberOption,
   {
     id: "enable_scroll_bar",
@@ -564,6 +609,7 @@ const generalOptions: ConfigOption[] = [
     type: "boolean",
     default: false,
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/enable_scroll_bar.html`,
   } as BooleanOption,
   {
     id: "audible_bell",
@@ -572,6 +618,7 @@ const generalOptions: ConfigOption[] = [
     type: "enum",
     default: "SystemBeep",
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/audible_bell.html`,
     options: [
       { value: "SystemBeep", label: "System Beep" },
       { value: "Disabled", label: "Disabled" },
@@ -584,6 +631,7 @@ const generalOptions: ConfigOption[] = [
     type: "enum",
     default: "Disabled",
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/visual_bell.html`,
     options: [
       { value: "Disabled", label: "Disabled" },
       { value: "FadeIn", label: "Fade In" },
@@ -598,6 +646,7 @@ const generalOptions: ConfigOption[] = [
     type: "boolean",
     default: true,
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/automatically_reload_config.html`,
   } as BooleanOption,
   {
     id: "check_for_updates",
@@ -606,6 +655,7 @@ const generalOptions: ConfigOption[] = [
     type: "boolean",
     default: true,
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/check_for_updates.html`,
   } as BooleanOption,
   {
     id: "exit_behavior",
@@ -614,6 +664,7 @@ const generalOptions: ConfigOption[] = [
     type: "enum",
     default: "CloseOnCleanExit",
     category: "general",
+    docUrl: `${WEZTERM_DOCS}/exit_behavior.html`,
     options: [
       { value: "Close", label: "Close", description: "Always close the pane" },
       { value: "Hold", label: "Hold", description: "Keep the pane open" },
@@ -635,6 +686,7 @@ const shellOptions: ConfigOption[] = [
     default: "",
     category: "shell",
     placeholder: "/bin/zsh",
+    docUrl: `${WEZTERM_DOCS}/default_prog.html`,
   } as StringOption,
   {
     id: "default_cwd",
@@ -644,6 +696,7 @@ const shellOptions: ConfigOption[] = [
     default: "",
     category: "shell",
     placeholder: "~",
+    docUrl: `${WEZTERM_DOCS}/default_cwd.html`,
   } as StringOption,
   {
     id: "term",
@@ -652,6 +705,7 @@ const shellOptions: ConfigOption[] = [
     type: "string",
     default: "xterm-256color",
     category: "shell",
+    docUrl: `${WEZTERM_DOCS}/term.html`,
   } as StringOption,
 ];
 
@@ -693,6 +747,7 @@ const keybindOptions: ConfigOption[] = [
     type: "keybind",
     default: defaultKeybinds,
     category: "keys",
+    docUrl: "https://wezfurlong.org/wezterm/config/keys.html",
   } as KeybindOption,
   {
     id: "disable_default_key_bindings",
@@ -701,6 +756,7 @@ const keybindOptions: ConfigOption[] = [
     type: "boolean",
     default: false,
     category: "keys",
+    docUrl: `${WEZTERM_DOCS}/disable_default_key_bindings.html`,
   } as BooleanOption,
   {
     id: "leader",
@@ -710,6 +766,7 @@ const keybindOptions: ConfigOption[] = [
     default: "",
     category: "keys",
     placeholder: "CTRL+a",
+    docUrl: `${WEZTERM_DOCS}/leader.html`,
   } as StringOption,
 ];
 
@@ -726,6 +783,7 @@ const advancedOptions: ConfigOption[] = [
     default: true,
     category: "advanced",
     platform: ["linux"],
+    docUrl: `${WEZTERM_DOCS}/enable_wayland.html`,
   } as BooleanOption,
   {
     id: "hyperlink_rules",
@@ -735,6 +793,7 @@ const advancedOptions: ConfigOption[] = [
     default: true,
     category: "advanced",
     note: "Uses default URL regex patterns",
+    docUrl: `${WEZTERM_DOCS}/hyperlink_rules.html`,
   } as BooleanOption,
   {
     id: "warn_about_missing_glyphs",
@@ -743,6 +802,7 @@ const advancedOptions: ConfigOption[] = [
     type: "boolean",
     default: true,
     category: "advanced",
+    docUrl: `${WEZTERM_DOCS}/warn_about_missing_glyphs.html`,
   } as BooleanOption,
   {
     id: "adjust_window_size_when_changing_font_size",
@@ -751,6 +811,7 @@ const advancedOptions: ConfigOption[] = [
     type: "boolean",
     default: true,
     category: "advanced",
+    docUrl: `${WEZTERM_DOCS}/adjust_window_size_when_changing_font_size.html`,
   } as BooleanOption,
   {
     id: "use_ime",
@@ -759,6 +820,7 @@ const advancedOptions: ConfigOption[] = [
     type: "boolean",
     default: true,
     category: "advanced",
+    docUrl: `${WEZTERM_DOCS}/use_ime.html`,
   } as BooleanOption,
   {
     id: "hide_mouse_cursor_when_typing",
@@ -767,6 +829,7 @@ const advancedOptions: ConfigOption[] = [
     type: "boolean",
     default: true,
     category: "advanced",
+    docUrl: `${WEZTERM_DOCS}/hide_mouse_cursor_when_typing.html`,
   } as BooleanOption,
 ];
 

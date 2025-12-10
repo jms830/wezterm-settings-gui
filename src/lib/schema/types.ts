@@ -39,6 +39,8 @@ export interface BaseConfigOption {
   deprecated?: boolean;
   note?: string;
   hidden?: boolean;
+  // Link to official WezTerm documentation
+  docUrl?: string;
   // Lua generation helpers
   luaKey?: string;
   luaTransform?: (value: unknown) => string;
