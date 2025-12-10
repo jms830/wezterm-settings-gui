@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
+import { CanvasAddon } from "@xterm/addon-canvas";
 import { useConfigStore } from "@/lib/store/config-store";
 import "@xterm/xterm/css/xterm.css";
 
@@ -158,7 +159,9 @@ export function TerminalPreview() {
         letterSpacing: 0,
       });
 
+      const canvasAddon = new CanvasAddon();
       fitAddon = new FitAddon();
+      terminal.loadAddon(canvasAddon);
       terminal.loadAddon(fitAddon);
 
       terminal.open(terminalRef.current);
