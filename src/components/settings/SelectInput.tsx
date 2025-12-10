@@ -22,7 +22,7 @@ export function SelectInput({ option }: SelectInputProps) {
   return (
     <SettingWrapper option={option}>
       <Select value={value} onValueChange={(v) => setValue(option.id, v)}>
-        <SelectTrigger id={option.id} className="w-64">
+        <SelectTrigger id={option.id} aria-labelledby={`${option.id}-label`} className="w-64">
           <SelectValue placeholder="Select an option" />
         </SelectTrigger>
         <SelectContent>

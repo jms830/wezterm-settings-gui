@@ -49,6 +49,8 @@ export function NumberInput({ option }: NumberInputProps) {
         <div className="flex items-center gap-2">
           <Input
             id={option.id}
+            name={option.id}
+            aria-labelledby={`${option.id}-label`}
             type="number"
             value={value}
             onChange={handleInputChange}

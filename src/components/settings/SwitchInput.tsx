@@ -57,6 +57,7 @@ export function SwitchInput({ option }: SwitchInputProps) {
         )}
         <Switch
           id={option.id}
+          name={option.id}
           checked={value}
           onCheckedChange={(checked) => setValue(option.id, checked)}
         />

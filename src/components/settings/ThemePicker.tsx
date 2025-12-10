@@ -141,7 +141,10 @@ export function ThemePreviewCard({
 }) {
   return (
     <button
+      type="button"
       onClick={onSelectAction}
+      aria-label={`Select ${scheme.name} theme${isSelected ? " (currently active)" : ""}`}
+      aria-pressed={isSelected}
       className={cn(
         "relative flex flex-col rounded-lg border-2 overflow-hidden transition-all hover:scale-105",
         isSelected

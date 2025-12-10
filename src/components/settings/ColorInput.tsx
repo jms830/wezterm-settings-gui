@@ -44,9 +44,11 @@ export function ColorInput({ option }: ColorInputProps) {
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
+              type="button"
               variant="outline"
               className="h-10 w-14 p-1 border-2"
               style={{ backgroundColor: value }}
+              aria-label={`Pick color for ${option.name}`}
             >
               <span className="sr-only">Pick color</span>
             </Button>
@@ -86,6 +88,8 @@ export function ColorInput({ option }: ColorInputProps) {
         
         <Input
           id={option.id}
+          name={option.id}
+          aria-labelledby={`${option.id}-label`}
           type="text"
           value={inputValue}
           onChange={(e) => handleChange(e.target.value)}

@@ -26,12 +26,12 @@ export function SettingWrapper({ option, children }: SettingWrapperProps) {
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <label
-              htmlFor={option.id}
+            <span
+              id={`${option.id}-label`}
               className="text-sm font-medium text-foreground"
             >
               {option.name}
-            </label>
+            </span>
             {mounted && isModified && (
               <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                 Modified

@@ -17,6 +17,8 @@ export function TextInput({ option }: TextInputProps) {
     <SettingWrapper option={option}>
       <Input
         id={option.id}
+        name={option.id}
+        aria-labelledby={`${option.id}-label`}
         type="text"
         value={value}
         onChange={(e) => setValue(option.id, e.target.value)}

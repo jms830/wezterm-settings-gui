@@ -29,15 +29,21 @@ export function PaletteInput({ option }: PaletteInputProps) {
 
   return (
     <SettingWrapper option={option}>
-      <div className="grid grid-cols-8 gap-2">
+      <div 
+        className="grid grid-cols-8 gap-2"
+        role="group"
+        aria-labelledby={`${option.id}-label`}
+      >
         {value.map((color, index) => (
           <Popover 
-            key={index} 
+            key={`${option.id}-${index}`} 
             open={activeIndex === index}
             onOpenChange={(open) => setActiveIndex(open ? index : null)}
           >
             <PopoverTrigger asChild>
               <button
+                type="button"
+                aria-label={`${ANSI_LABELS[index]} color: ${color}`}
                 className="group relative h-10 w-full rounded-md border-2 border-border hover:border-primary transition-colors"
                 style={{ backgroundColor: color }}
               >
@@ -61,6 +67,9 @@ export function PaletteInput({ option }: PaletteInputProps) {
                 />
                 <Input
                   type="text"
+                  id={`${option.id}-${index}`}
+                  name={`${option.id}-${index}`}
+                  aria-label={`${ANSI_LABELS[index]} hex value`}
                   value={color}
                   onChange={(e) => {
                     if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {

@@ -1,0 +1,802 @@
+# Adapting Ghostty config to Wezterm
+
+**Session ID:** ses_501589fedffeuvwSj7CAfUjwK7
+**Created:** 12/8/2025, 10:49:33 AM
+**Updated:** 12/8/2025, 11:15:36 PM
+
+---
+
+## User
+
+Ok, let's review our work, I'm thinking we may want to refactor -- I'm actually thinking we could learn a lot from another project. https://spectre-ghostty-config.vercel.app/
+
+https://github.com/imrajyavardhan12/spectre-ghostty-config
+
+Could we basically use this exact methodology but for Wezterm instead of Ghostty? 
+
+---
+
+## Assistant
+
+I'll explore that project to understand their methodology and then analyze how we could apply it to WezTerm. Let me fetch the information and examine their approach.
+
+```
+Tool: webfetch
+```
+
+```
+Tool: webfetch
+```
+
+---
+
+## Assistant
+
+This is fascinating! Let me explore their actual source code to understand their implementation approach better.
+
+```
+Tool: task
+```
+
+```
+Tool: task
+```
+
+---
+
+## Assistant
+
+This is an excellent comparison. Let me synthesize what I've learned and present a clear analysis and plan recommendation.
+
+---
+
+## Analysis: Spectre vs Our Current WezTerm GUI
+
+### What Spectre Does Well
+
+| Feature | Spectre Approach | Our Current State |
+|---------|------------------|-------------------|
+| **Option Schema** | Centralized typed definitions with discriminated unions | Type defs exist but scattered between Rust/TS |
+| **State Management** | Zustand - stores only modified values | React useState - stores everything |
+| **Dynamic Rendering** | `SettingRenderer` switches on `option.type` | Hand-coded panels per category |
+| **Config Export** | Clean generation with category grouping | Working but monolithic generator |
+| **Theme Integration** | 200+ themes from iTerm2-Color-Schemes | 700+ built-in WezTerm schemes |
+| **Live Preview** | libghostty WASM terminal preview | None |
+| **Search** | Cmd+K dialog across all options | None |
+| **Presets** | Pre-built config presets | None |
+
+### Key Architectural Differences
+
+**Spectre (Next.js):**
+```
+src/data/ghostty-options.ts  ← All ~100 options defined declaratively
+src/lib/store/config-store.ts ← Single Zustand store
+src/components/settings/SettingRenderer.tsx ← Routes option.type → component
+```
+
+**Our App (Tauri + React):**
+```
+src-tauri/src/models/config.rs ← Rust types (comprehensive, 901 lines)
+src-gui/types/config.ts ← TS types (mirror of Rust)
+src-gui/App.tsx ← 1,489 line monolith with 10+ useState hooks
+```
+
+---
+
+## Proposed Refactor: Adopt Spectre's Methodology
+
+### 1. Centralized Option Schema (like `ghostty-options.ts`)
+
+Create a unified option definition system:
+
+```typescript
+// src-gui/data/wezterm-options.ts
+const fontOptions: WezTermOption[] = [
+  {
+    id: "font_family",
+    name: "Font Family",
+    description: "Primary font for terminal text",
+    type: "string",
+    default: "JetBrains Mono",
+    category: "fonts",
+    luaKey: "config.font",
+    luaTransform: (v) => `wezterm.font '${v}'`,  // WezTerm-specific
+  },
+  {
+    id: "font_size",
+    name: "Font Size",
+    type: "number",
+    default: 12.0,
+    min: 6,
+    max: 72,
+    step: 0.5,
+    category: "fonts",
+    luaKey: "config.font_size",
+  },
+  // ...
+];
+
+export const allOptions = [...fontOptions, ...colorOptions, ...windowOptions, ...];
+```
+
+### 2. Zustand Store (like `config-store.ts`)
+
+Replace 10+ useState hooks with a single store:
+
+```typescript
+// src-gui/store/config-store.ts
+interface ConfigStore {
+  config: Record<string, unknown>;  // Only modified values
+  setValue: (key: string, value: unknown) => void;
+  getValue: (key: string) => unknown;  // Returns stored OR default
+  isModified: (key: string) => boolean;
+  resetAll: () => void;
+  exportLua: () => string;
+}
+```
+
+### 3. Dynamic Option Rendering (like `SettingRenderer`)
+
+```typescript
+// src-gui/components/SettingRenderer.tsx
+export function SettingRenderer({ option }: { option: WezTermOption }) {
+  switch (option.type) {
+    case "string": return <TextInput option={option} />;
+    case "number": return <NumberInput option={option} />;
+    case "color": return <ColorInput option={option} />;
+    case "enum": return <SelectInput option={option} />;
+    case "keybind": return <KeybindInput option={option} />;
+    case "lua_table": return <LuaTableInput option={option} />;  // WezTerm-specific
+  }
+}
+```
+
+### 4. WezTerm-Specific Additions
+
+| Spectre Feature | WezTerm Adaptation |
+|-----------------|-------------------|
+| libghostty WASM preview | WezTerm `--config-file` subprocess preview (or embedded) |
+| iTerm2 themes | Our 700+ built-in schemes + external sources |
+| Ghostty config syntax | Lua config generation with proper formatting |
+| Keybinds as key=value | WezTerm keybind table syntax |
+
+---
+
+## Questions Before Planning
+
+1. **Scope**: Do you want to:
+   - **A)** Full refactor to Spectre's architecture (data-driven, Zustand, decomposed components)
+   - **B)** Incremental adoption (add schema + Zustand while keeping existing panels)
+   - **C)** Something else entirely?
+
+2. **Live Preview**: Spectre uses libghostty WASM. For WezTerm we could:
+   - Spawn a WezTerm subprocess with `--config-file`
+   - Embed a preview canvas (harder)
+   - Skip for now and focus on architecture
+
+3. **Existing Config Import**: How important is parsing existing `wezterm.lua` files? The current regex parser is fragile. Options:
+   - Improve the Lua parser
+   - Accept that complex configs may need manual re-entry
+   - Use a proper Lua parser (more work)
+
+4. **Web vs Desktop**: Spectre is web-only. Do you want to:
+   - Keep Tauri desktop app (current)
+   - Add web deployment option (like Spectre)
+   - Both?
+
+---
+
+## User
+
+1. Full refactor. 2. What will be easiest to have maintained and least likely to break? 3. Improve while keeping as close to spectre as possible so easily maintained upstream. 4. Web deployment please for easy access.
+
+---
+
+## Assistant
+
+Excellent choices! Let me do some additional research to make the best recommendations for maintainability and web deployment.
+
+```
+Tool: task
+```
+
+```
+Tool: webfetch
+```
+
+```
+Tool: read
+```
+
+---
+
+## Assistant
+
+Now let me check what terminal preview options exist for WezTerm (since we can't use ghostty-web):
+
+```
+Tool: task
+```
+
+---
+
+## Assistant
+
+Now I have all the research I need. Let me create a comprehensive plan for the full refactor.
+
+```
+Tool: todowrite
+```
+
+---
+
+## Assistant
+
+---
+
+# Full Refactor Plan: WezTerm Settings GUI → Spectre-style Web App
+
+## Overview
+
+Transform the current Tauri desktop app into a **web-first config generator** following Spectre's architecture, deployable to Vercel/Netlify.
+
+## Technology Stack
+
+| Component | Current | Proposed |
+|-----------|---------|----------|
+| **Framework** | React + Tauri | **Next.js 15** (App Router) |
+| **Language** | TypeScript + Rust | **TypeScript only** |
+| **State Management** | React useState | **Zustand** |
+| **Styling** | Plain CSS | **Tailwind CSS** |
+| **UI Components** | Hand-rolled | **shadcn/ui** |
+| **Terminal Preview** | None | **xterm.js** |
+| **Deployment** | Tauri desktop | **Vercel** (web) |
+
+## Project Structure (Mirroring Spectre)
+
+```
+src/
+├── app/                          # Next.js App Router
+│   ├── page.tsx                  # Landing page
+│   ├── editor/
+│   │   └── page.tsx              # Main config editor
+│   ├── themes/
+│   │   └── page.tsx              # Theme browser
+│   └── share/
+│       └── [config]/page.tsx     # Shareable config URLs
+├── components/
+│   ├── editor/
+│   │   ├── ConfigPanel.tsx       # Renders options by category
+│   │   ├── ConfigOutput.tsx      # Lua export sheet
+│   │   ├── CommandSearch.tsx     # Cmd+K search
+│   │   └── PresetsDialog.tsx     # Pre-built configs
+│   ├── settings/
+│   │   ├── SettingWrapper.tsx    # Label + description + reset
+│   │   ├── SettingRenderer.tsx   # Routes type → component
+│   │   ├── ColorInput.tsx
+│   │   ├── SelectInput.tsx
+│   │   ├── NumberInput.tsx
+│   │   ├── TextInput.tsx
+│   │   ├── SwitchInput.tsx
+│   │   ├── PaletteInput.tsx      # 16-color ANSI editor
+│   │   ├── KeybindInput.tsx      # WezTerm keybind editor
+│   │   └── LuaTableInput.tsx     # Nested table editor
+│   ├── preview/
+│   │   ├── TerminalPreview.tsx   # xterm.js live preview
+│   │   └── TabBarPreview.tsx     # Tab bar mockup
+│   ├── themes/
+│   │   ├── ThemeCard.tsx
+│   │   └── ThemeGallery.tsx
+│   └── ui/                       # shadcn/ui components
+├── data/
+│   ├── wezterm-options.ts        # ALL config option definitions
+│   ├── categories.ts             # Category metadata + icons
+│   ├── presets.ts                # Starter configs
+│   └── builtin-schemes.ts        # 700+ color schemes
+├── lib/
+│   ├── schema/
+│   │   └── types.ts              # Option type definitions
+│   ├── store/
+│   │   └── config-store.ts       # Zustand store
+│   └── utils/
+│       ├── lua-generator.ts      # Generate wezterm.lua
+│       ├── lua-parser.ts         # Import existing configs
+│       ├── themes.ts             # Theme utilities
+│       └── url-share.ts          # Shareable URLs
+└── styles/
+    └── globals.css               # Tailwind base
+```
+
+## Key Architectural Decisions
+
+### 1. Option Schema System
+
+Every WezTerm config option defined declaratively:
+
+```typescript
+// src/data/wezterm-options.ts
+export const fontOptions: WezTermOption[] = [
+  {
+    id: "font_family",
+    name: "Font Family",
+    description: "Primary font for terminal text. Supports fallback fonts.",
+    type: "string",
+    default: "JetBrains Mono",
+    category: "fonts",
+    placeholder: "JetBrains Mono, Fira Code",
+    repeatable: true,  // Multiple fonts allowed
+    luaKey: "font",
+    luaTransform: (v) => `wezterm.font '${v}'`,
+  },
+  {
+    id: "font_size",
+    name: "Font Size",
+    description: "Font size in points",
+    type: "number",
+    default: 12.0,
+    min: 6,
+    max: 72,
+    step: 0.5,
+    category: "fonts",
+    luaKey: "font_size",
+  },
+  // ... 100+ more options
+];
+
+export const allOptions = [
+  ...fontOptions,
+  ...colorOptions,
+  ...windowOptions,
+  ...cursorOptions,
+  ...gpuOptions,
+  ...keybindOptions,
+  ...generalOptions,
+];
+```
+
+### 2. Zustand State (Only Modified Values)
+
+```typescript
+// src/lib/store/config-store.ts
+interface ConfigStore {
+  config: Record<string, unknown>;  // Only non-default values
+  appliedTheme: string | null;
+  
+  setValue: (key: string, value: unknown) => void;
+  resetValue: (key: string) => void;
+  resetAll: () => void;
+  getValue: (key: string) => unknown;
+  isModified: (key: string) => boolean;
+  importConfig: (luaContent: string) => void;
+  exportLua: () => string;
+}
+```
+
+### 3. Dynamic Component Rendering
+
+```typescript
+// src/components/settings/SettingRenderer.tsx
+export function SettingRenderer({ option }: { option: WezTermOption }) {
+  switch (option.type) {
+    case "string":    return <TextInput option={option} />;
+    case "number":    return <NumberInput option={option} />;
+    case "boolean":   return <SwitchInput option={option} />;
+    case "enum":      return <SelectInput option={option} />;
+    case "color":     return <ColorInput option={option} />;
+    case "palette":   return <PaletteInput option={option} />;
+    case "keybind":   return <KeybindInput option={option} />;
+    case "lua_table": return <LuaTableInput option={option} />;
+    default:          return <TextInput option={option} />;
+  }
+}
+```
+
+### 4. Lua Generation (Client-side)
+
+```typescript
+// src/lib/utils/lua-generator.ts
+export function generateLuaConfig(config: Record<string, unknown>, theme?: string): string {
+  const lines = [
+    "-- Generated by WezTerm Config Generator",
+    "-- https://wezterm-config.vercel.app",
+    "",
+    "local wezterm = require 'wezterm'",
+    "local config = wezterm.config_builder()",
+    "",
+  ];
+
+  if (theme) {
+    lines.push(`-- Theme: ${theme}`);
+  }
+
+  // Group by category and generate
+  const byCategory = groupByCategory(config);
+  for (const [category, values] of byCategory) {
+    lines.push(`-- ${category}`);
+    for (const [key, value] of values) {
+      const option = getOptionById(key);
+      lines.push(formatLuaValue(option, value));
+    }
+    lines.push("");
+  }
+
+  lines.push("return config");
+  return lines.join("\n");
+}
+```
+
+### 5. xterm.js Preview
+
+```typescript
+// src/components/preview/TerminalPreview.tsx
+export function TerminalPreview({ config }: { config: Record<string, unknown> }) {
+  const termRef = useRef<Terminal | null>(null);
+  
+  useEffect(() => {
+    // Update theme in real-time as user changes colors
+    if (termRef.current) {
+      termRef.current.options.theme = mapToXtermTheme(config);
+      termRef.current.options.fontFamily = config.font_family as string;
+      termRef.current.options.fontSize = config.font_size as number;
+    }
+  }, [config]);
+
+  // Write sample content showing ANSI colors, cursor, etc.
+}
+```
+
+## Categories (WezTerm-specific)
+
+| Category | Icon | Options |
+|----------|------|---------|
+| **Fonts** | Type | family, size, weight, freetype targets |
+| **Colors** | Palette | scheme, foreground, background, ANSI, brights |
+| **Window** | AppWindow | opacity, decorations, padding, tab bar |
+| **Cursor** | MousePointer | style, blink rate, animation |
+| **GPU** | Cpu | front_end, webgpu_power, max_fps |
+| **Keys** | Keyboard | keybindings, key tables, leader key |
+| **Shell** | Terminal | default program, shell integration |
+| **Domains** | Globe | SSH, Unix, WSL domains |
+| **Advanced** | Settings | scrollback, hyperlinks, clipboard |
+
+## Migration Phases
+
+### Phase 1: Core Infrastructure (3-4 days)
+- [ ] Initialize Next.js 15 project with Tailwind + shadcn/ui
+- [ ] Set up Zustand store with persistence
+- [ ] Create option schema system (`wezterm-options.ts`)
+- [ ] Build `SettingRenderer` and input components
+- [ ] Implement basic Lua generation
+
+### Phase 2: UI Components (2-3 days)
+- [ ] Landing page (similar to Spectre)
+- [ ] Editor layout with sidebar navigation
+- [ ] ConfigPanel for rendering categories
+- [ ] ConfigOutput sheet for export/download
+
+### Phase 3: Terminal Preview (1-2 days)
+- [ ] Integrate xterm.js
+- [ ] Map WezTerm theme → xterm.js theme
+- [ ] Sample content generation
+- [ ] TabBarPreview component (mockup)
+
+### Phase 4: Theme System (1-2 days)
+- [ ] Theme gallery page with cards
+- [ ] One-click theme application
+- [ ] Visual preview per theme
+- [ ] Port 700+ built-in schemes
+
+### Phase 5: Import/Export (1-2 days)
+- [ ] Port Lua parser (regex-based) to TypeScript
+- [ ] Paste/upload config import
+- [ ] URL-based sharing (base64 encoded)
+- [ ] Download wezterm.lua
+
+### Phase 6: Polish & Deploy (1-2 days)
+- [ ] Cmd+K search across all options
+- [ ] Presets (Starter, Power User, etc.)
+- [ ] Responsive design
+- [ ] Deploy to Vercel
+
+## What We Keep vs. Remove
+
+### Keep (Port to TypeScript)
+- Option definitions and defaults (from Rust models)
+- 700+ color scheme catalog
+- Lua generation logic (simplified)
+- Regex-based Lua parser (with improvements)
+
+### Remove
+- Tauri/Rust backend (not needed for web)
+- Desktop-specific features (file system access via dialogs)
+- Current monolithic App.tsx
+
+## Key Differences from Spectre
+
+| Spectre | Our WezTerm Version |
+|---------|---------------------|
+| Ghostty key=value format | WezTerm Lua format |
+| libghostty WASM preview | xterm.js preview |
+| iTerm2 themes | WezTerm built-in schemes |
+| Simple keybinds | Complex key tables |
+| No domains | SSH/Unix/WSL domains |
+
+## Questions Before Proceeding
+
+1. **Project name**: Keep "wezterm-settings-gui" or rebrand to something like "Spectre-WezTerm" / "WezTerm Config Generator"?
+
+2. **Domain**: Do you have a domain in mind, or use default Vercel URL?
+
+3. **Existing Tauri code**: Archive it in a branch, or remove entirely?
+
+4. **700+ color schemes**: Keep them all, or curate to a smaller set?
+
+5. **Keybinding editor**: Include in MVP or defer to later phase?
+
+---
+
+Ready to proceed with implementation when you approve this plan. What questions do you have?
+
+---
+
+## User
+
+would libghostty wasm be more futureproof? what about your other suggestions? futureproof?
+rebrand project wezterm-settings-ui
+no default url yet
+archive it in another branch
+I think we can keep them
+include in mvp... I want parity with spectre, ASAP
+
+---
+
+## Assistant
+
+Great questions about future-proofing. Let me address them:
+
+## Future-proofing Analysis
+
+### Terminal Preview Options
+
+| Option | Future-proof Score | Reasoning |
+|--------|-------------------|-----------|
+| **xterm.js** | ⭐⭐⭐⭐⭐ (Best) | Industry standard, used by VS Code, actively maintained, huge community, 19.5k stars |
+| **ghostty-web** | ⭐⭐⭐ (Risky) | Tied to Ghostty project, requires Zig toolchain to build, only 1.4k stars, early stage |
+| **Canvas custom** | ⭐⭐ (Poor) | We'd own all maintenance burden |
+
+**Recommendation: xterm.js** - It's what VS Code uses, will be maintained for years, and has the exact APIs we need. ghostty-web is cool but couples us to Ghostty's release cycle and build system.
+
+### Other Choices
+
+| Choice | Future-proof? | Notes |
+|--------|--------------|-------|
+| **Next.js 15** | ✅ Excellent | Vercel-backed, industry standard |
+| **Zustand** | ✅ Excellent | Simple, stable API, widely adopted |
+| **shadcn/ui** | ✅ Excellent | Copy-paste components we own, not dependent on library updates |
+| **Tailwind CSS** | ✅ Excellent | Industry standard |
+| **TypeScript** | ✅ Excellent | No brainer |
+
+All solid, mainstream choices that match Spectre's stack.
+
+---
+
+Let me start the implementation. First, I'll archive the current code and set up the new project.
+
+```
+Tool: todowrite
+```
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+Now let me clear out the old code and set up the Next.js project:
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: todowrite
+```
+
+---
+
+## Assistant
+
+Now let me create the Next.js project. I'll use bun since Spectre uses it:
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## User
+
+continue work
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## User
+
+continue work
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+Good, Next.js is set up. Now let me install dependencies and set up shadcn/ui:
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: todowrite
+```
+
+---
+
+## Assistant
+
+Now let me create the core architecture files. I'll start with the type definitions and schema system:
+
+```
+Tool: bash
+```
+
+---
+
+## Assistant
+
+```
+Tool: write
+```
+
+---
+
+## Assistant
+
+```
+Tool: write
+```
+
+---
+
+## Assistant
+
+Now let me create the comprehensive wezterm-options.ts file with all the config options:
+
+```
+Tool: write
+```
+
+---
+
+## Assistant
+
+Now let's create the Zustand store:
+
+```
+Tool: write
+```
+
+---
+
