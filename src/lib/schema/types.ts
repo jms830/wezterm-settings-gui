@@ -20,6 +20,8 @@ export type Category =
   | "cursor"
   | "gpu"
   | "keys"
+  | "mouse"
+  | "clipboard"
   | "general"
   | "shell"
   | "advanced";

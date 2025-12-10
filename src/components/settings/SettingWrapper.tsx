@@ -5,7 +5,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { useConfigStore } from "@/lib/store/config-store";
-import type { ConfigOption } from "@/lib/schema/types";
+import type { ConfigOption, Platform } from "@/lib/schema/types";
+
+// Platform badge styling
+const platformStyles: Record<Platform, { bg: string; text: string; label: string }> = {
+  macos: { bg: "bg-slate-500/10", text: "text-slate-600 dark:text-slate-400", label: "macOS" },
+  linux: { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400", label: "Linux" },
+  windows: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", label: "Windows" },
+};
 
 interface SettingWrapperProps {
   option: ConfigOption;
@@ -57,11 +64,17 @@ export function SettingWrapper({ option, children }: SettingWrapperProps) {
                 Modified
               </span>
             )}
-            {option.platform && (
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {option.platform.join(", ")}
-              </span>
-            )}
+            {option.platform && option.platform.map((p) => {
+              const style = platformStyles[p];
+              return (
+                <span
+                  key={p}
+                  className={`inline-flex items-center rounded-full ${style.bg} px-2 py-0.5 text-xs ${style.text}`}
+                >
+                  {style.label}
+                </span>
+              );
+            })}
             {option.deprecated && (
               <span className="inline-flex items-center rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
                 Deprecated

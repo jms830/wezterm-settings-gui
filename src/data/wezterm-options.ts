@@ -136,6 +136,52 @@ const fontOptions: ConfigOption[] = [
       { value: "HorizontalLcd", label: "Horizontal LCD" },
     ],
   } as EnumOption,
+  {
+    id: "harfbuzz_features",
+    name: "HarfBuzz Features",
+    description: "OpenType font features to enable (e.g., calt, liga, ss01).",
+    type: "string",
+    default: "",
+    category: "fonts",
+    subcategory: "Features",
+    placeholder: "calt=1, liga=1, ss01=1",
+    docUrl: `${WEZTERM_DOCS}/harfbuzz_features.html`,
+  } as StringOption,
+  {
+    id: "allow_square_glyphs_to_overflow_width",
+    name: "Allow Square Glyphs to Overflow",
+    description: "Allow glyphs (like emoji) to use more than one cell width.",
+    type: "enum",
+    default: "WhenFollowedBySpace",
+    category: "fonts",
+    subcategory: "Features",
+    docUrl: `${WEZTERM_DOCS}/allow_square_glyphs_to_overflow_width.html`,
+    options: [
+      { value: "Never", label: "Never" },
+      { value: "WhenFollowedBySpace", label: "When Followed by Space" },
+      { value: "Always", label: "Always" },
+    ],
+  } as EnumOption,
+  {
+    id: "custom_block_glyphs",
+    name: "Custom Block Glyphs",
+    description: "Use custom-rendered block elements instead of font glyphs.",
+    type: "boolean",
+    default: true,
+    category: "fonts",
+    subcategory: "Features",
+    docUrl: `${WEZTERM_DOCS}/custom_block_glyphs.html`,
+  } as BooleanOption,
+  {
+    id: "use_cap_height_to_scale_fallback_fonts",
+    name: "Scale Fallbacks by Cap Height",
+    description: "Scale fallback fonts to match the cap height of the primary font.",
+    type: "boolean",
+    default: true,
+    category: "fonts",
+    subcategory: "Fallback",
+    docUrl: `${WEZTERM_DOCS}/use_cap_height_to_scale_fallback_fonts.html`,
+  } as BooleanOption,
 ];
 
 // ============================================================================
@@ -251,6 +297,31 @@ const colorOptions: ConfigOption[] = [
     subcategory: "ANSI Palette",
     docUrl: `${WEZTERM_DOCS}/colors.html`,
   } as PaletteOption,
+  {
+    id: "bold_brightens_ansi_colors",
+    name: "Bold Brightens ANSI Colors",
+    description: "When true, bold text uses the bright variant of ANSI colors.",
+    type: "enum",
+    default: "BrightAndBold",
+    category: "colors",
+    subcategory: "Text Styling",
+    docUrl: `${WEZTERM_DOCS}/bold_brightens_ansi_colors.html`,
+    options: [
+      { value: "No", label: "No", description: "Bold text keeps the same color" },
+      { value: "BrightAndBold", label: "Bright and Bold", description: "Bold text uses bright color and bold weight" },
+      { value: "BrightOnly", label: "Bright Only", description: "Bold text uses bright color but not bold weight" },
+    ],
+  } as EnumOption,
+  {
+    id: "split_color",
+    name: "Split Color",
+    description: "Color of the divider line between split panes.",
+    type: "color",
+    default: "#444444",
+    category: "colors",
+    subcategory: "Pane Colors",
+    docUrl: `${WEZTERM_DOCS}/colors.html`,
+  } as ColorOption,
 ];
 
 // ============================================================================
@@ -444,6 +515,74 @@ const windowOptions: ConfigOption[] = [
     subcategory: "Size",
     docUrl: `${WEZTERM_DOCS}/initial_rows.html`,
   } as NumberOption,
+  {
+    id: "inactive_pane_hsb_saturation",
+    name: "Inactive Pane Saturation",
+    description: "Saturation multiplier for inactive panes (0.0 - 1.0).",
+    type: "number",
+    default: 0.9,
+    min: 0.0,
+    max: 1.0,
+    step: 0.05,
+    category: "window",
+    subcategory: "Inactive Pane",
+    docUrl: `${WEZTERM_DOCS}/inactive_pane_hsb.html`,
+  } as NumberOption,
+  {
+    id: "inactive_pane_hsb_brightness",
+    name: "Inactive Pane Brightness",
+    description: "Brightness multiplier for inactive panes (0.0 - 1.0).",
+    type: "number",
+    default: 0.8,
+    min: 0.0,
+    max: 1.0,
+    step: 0.05,
+    category: "window",
+    subcategory: "Inactive Pane",
+    docUrl: `${WEZTERM_DOCS}/inactive_pane_hsb.html`,
+  } as NumberOption,
+  {
+    id: "text_background_opacity",
+    name: "Text Background Opacity",
+    description: "Opacity of the text background layer (0.0 - 1.0).",
+    type: "number",
+    default: 1.0,
+    min: 0.0,
+    max: 1.0,
+    step: 0.05,
+    category: "window",
+    docUrl: `${WEZTERM_DOCS}/text_background_opacity.html`,
+  } as NumberOption,
+  {
+    id: "macos_window_background_blur",
+    name: "Window Background Blur (macOS)",
+    description: "Amount of blur to apply to window background on macOS.",
+    type: "number",
+    default: 0,
+    min: 0,
+    max: 100,
+    step: 5,
+    category: "window",
+    platform: ["macos"],
+    docUrl: `${WEZTERM_DOCS}/macos_window_background_blur.html`,
+  } as NumberOption,
+  {
+    id: "win32_system_backdrop",
+    name: "System Backdrop (Windows)",
+    description: "Windows 11 system backdrop style.",
+    type: "enum",
+    default: "Auto",
+    category: "window",
+    platform: ["windows"],
+    docUrl: `${WEZTERM_DOCS}/win32_system_backdrop.html`,
+    options: [
+      { value: "Auto", label: "Auto" },
+      { value: "Disable", label: "Disable" },
+      { value: "Acrylic", label: "Acrylic" },
+      { value: "Mica", label: "Mica" },
+      { value: "Tabbed", label: "Tabbed" },
+    ],
+  } as EnumOption,
 ];
 
 // ============================================================================
@@ -671,6 +810,33 @@ const generalOptions: ConfigOption[] = [
       { value: "CloseOnCleanExit", label: "Close on Clean Exit", description: "Close if exit code is 0" },
     ],
   } as EnumOption,
+  {
+    id: "window_frame_rate",
+    name: "Window Frame Rate",
+    description: "Target frame rate for the terminal window.",
+    type: "number",
+    default: 60,
+    min: 1,
+    max: 240,
+    step: 10,
+    category: "general",
+    subcategory: "Performance",
+    docUrl: `${WEZTERM_DOCS}/max_fps.html`,
+  } as NumberOption,
+  {
+    id: "status_update_interval",
+    name: "Status Update Interval",
+    description: "How often to update the status bar (ms).",
+    type: "number",
+    default: 1000,
+    min: 100,
+    max: 10000,
+    step: 100,
+    category: "general",
+    subcategory: "Performance",
+    unit: "ms",
+    docUrl: `${WEZTERM_DOCS}/status_update_interval.html`,
+  } as NumberOption,
 ];
 
 // ============================================================================
@@ -771,6 +937,140 @@ const keybindOptions: ConfigOption[] = [
 ];
 
 // ============================================================================
+// Mouse Options
+// ============================================================================
+
+const mouseOptions: ConfigOption[] = [
+  {
+    id: "mouse_bindings",
+    name: "Enable Mouse Bindings",
+    description: "Enable custom mouse button bindings.",
+    type: "boolean",
+    default: true,
+    category: "mouse",
+    docUrl: `${WEZTERM_DOCS}/mouse_bindings.html`,
+  } as BooleanOption,
+  {
+    id: "bypass_mouse_reporting_modifiers",
+    name: "Bypass Mouse Reporting Modifiers",
+    description: "Hold these modifiers to bypass application mouse reporting.",
+    type: "enum",
+    default: "SHIFT",
+    category: "mouse",
+    docUrl: `${WEZTERM_DOCS}/bypass_mouse_reporting_modifiers.html`,
+    options: [
+      { value: "NONE", label: "None" },
+      { value: "SHIFT", label: "Shift" },
+      { value: "CTRL", label: "Ctrl" },
+      { value: "ALT", label: "Alt" },
+      { value: "SUPER", label: "Super/Cmd" },
+    ],
+  } as EnumOption,
+  {
+    id: "swallow_mouse_click_on_pane_focus",
+    name: "Swallow Click on Pane Focus",
+    description: "Don't send click to terminal when clicking to focus a pane.",
+    type: "boolean",
+    default: false,
+    category: "mouse",
+    docUrl: `${WEZTERM_DOCS}/swallow_mouse_click_on_pane_focus.html`,
+  } as BooleanOption,
+  {
+    id: "swallow_mouse_click_on_window_focus",
+    name: "Swallow Click on Window Focus",
+    description: "Don't send click to terminal when clicking to focus the window.",
+    type: "boolean",
+    default: false,
+    category: "mouse",
+    docUrl: `${WEZTERM_DOCS}/swallow_mouse_click_on_window_focus.html`,
+  } as BooleanOption,
+  {
+    id: "pane_focus_follows_mouse",
+    name: "Pane Focus Follows Mouse",
+    description: "Automatically focus pane under mouse cursor.",
+    type: "boolean",
+    default: false,
+    category: "mouse",
+    docUrl: `${WEZTERM_DOCS}/pane_focus_follows_mouse.html`,
+  } as BooleanOption,
+  {
+    id: "alternate_buffer_wheel_scroll_speed",
+    name: "Alternate Buffer Scroll Speed",
+    description: "Mouse wheel scroll speed when in alternate buffer (e.g., vim, less).",
+    type: "number",
+    default: 3,
+    min: 1,
+    max: 20,
+    step: 1,
+    category: "mouse",
+    subcategory: "Scrolling",
+    docUrl: `${WEZTERM_DOCS}/alternate_buffer_wheel_scroll_speed.html`,
+  } as NumberOption,
+  {
+    id: "scroll_to_bottom_on_input",
+    name: "Scroll to Bottom on Input",
+    description: "Automatically scroll to bottom when you type.",
+    type: "boolean",
+    default: true,
+    category: "mouse",
+    subcategory: "Scrolling",
+    docUrl: `${WEZTERM_DOCS}/scroll_to_bottom_on_input.html`,
+  } as BooleanOption,
+];
+
+// ============================================================================
+// Clipboard Options
+// ============================================================================
+
+const clipboardOptions: ConfigOption[] = [
+  {
+    id: "selection_word_boundary",
+    name: "Word Boundary Characters",
+    description: "Characters that define word boundaries for double-click selection.",
+    type: "string",
+    default: " \\t\\n{}[]()\"'`",
+    category: "clipboard",
+    placeholder: " \\t\\n{}[]()\"'`",
+    docUrl: `${WEZTERM_DOCS}/selection_word_boundary.html`,
+  } as StringOption,
+  {
+    id: "canonicalize_pasted_newlines",
+    name: "Canonicalize Pasted Newlines",
+    description: "How to handle newlines when pasting text.",
+    type: "enum",
+    default: "None",
+    category: "clipboard",
+    docUrl: `${WEZTERM_DOCS}/canonicalize_pasted_newlines.html`,
+    options: [
+      { value: "None", label: "None", description: "Don't modify newlines" },
+      { value: "LineFeed", label: "Line Feed", description: "Convert to \\n" },
+      { value: "CarriageReturn", label: "Carriage Return", description: "Convert to \\r" },
+      { value: "CarriageReturnAndLineFeed", label: "CR+LF", description: "Convert to \\r\\n" },
+    ],
+  } as EnumOption,
+  {
+    id: "enable_csi_u_key_encoding",
+    name: "Enable CSI-u Key Encoding",
+    description: "Enable extended key encoding for better key handling.",
+    type: "boolean",
+    default: false,
+    category: "clipboard",
+    subcategory: "Input",
+    docUrl: `${WEZTERM_DOCS}/enable_csi_u_key_encoding.html`,
+  } as BooleanOption,
+  {
+    id: "enable_kitty_keyboard",
+    name: "Enable Kitty Keyboard Protocol",
+    description: "Enable Kitty keyboard protocol for enhanced key support.",
+    type: "boolean",
+    default: false,
+    category: "clipboard",
+    subcategory: "Input",
+    docUrl: `${WEZTERM_DOCS}/enable_kitty_keyboard.html`,
+  } as BooleanOption,
+];
+
+// ============================================================================
 // Advanced Options
 // ============================================================================
 
@@ -843,9 +1143,11 @@ export const allOptions: ConfigOption[] = [
   ...windowOptions,
   ...cursorOptions,
   ...gpuOptions,
+  ...keybindOptions,
+  ...mouseOptions,
+  ...clipboardOptions,
   ...generalOptions,
   ...shellOptions,
-  ...keybindOptions,
   ...advancedOptions,
 ];
 

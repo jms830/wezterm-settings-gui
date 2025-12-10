@@ -29,21 +29,26 @@ function shouldCursorBlink(weztermStyle: string): boolean {
 
 // Demo content to display in the terminal preview
 // Use \r\n for proper line breaks, no leading spaces
+// Shows: ANSI colors palette, text styles, and a shell prompt
 const DEMO_CONTENT = [
-  "\x1b[1;34m$\x1b[0m ls -la",
-  "\x1b[1;36mdrwxr-xr-x\x1b[0m  user  \x1b[1;34m.\x1b[0m",
-  "\x1b[1;36mdrwxr-xr-x\x1b[0m  user  \x1b[1;34m..\x1b[0m",
-  "\x1b[1;36m-rw-r--r--\x1b[0m  user  .bashrc",
-  "\x1b[1;32m-rwxr-xr-x\x1b[0m  user  \x1b[1;32mwezterm.lua\x1b[0m",
+  // Header with prompt
+  "\x1b[1;32muser@host\x1b[0m:\x1b[1;34m~/wezterm\x1b[0m$ ls -la",
+  "\x1b[1;34mdrwxr-xr-x\x1b[0m  4  user  \x1b[1;34m.\x1b[0m",
+  "\x1b[0;32m-rwxr-xr-x\x1b[0m  1  user  \x1b[0;32mwezterm.lua\x1b[0m",
   "",
-  "\x1b[1;34m$\x1b[0m echo \"Hello, \x1b[1;33mWezTerm\x1b[0m!\"",
-  "Hello, \x1b[1;33mWezTerm\x1b[0m!",
+  // ANSI Color palette - normal
+  "\x1b[2m-- Normal ANSI Colors --\x1b[0m",
+  "\x1b[30m\u2588\u2588\x1b[31m\u2588\u2588\x1b[32m\u2588\u2588\x1b[33m\u2588\u2588\x1b[34m\u2588\u2588\x1b[35m\u2588\u2588\x1b[36m\u2588\u2588\x1b[37m\u2588\u2588\x1b[0m",
+  // ANSI Color palette - bright
+  "\x1b[2m-- Bright ANSI Colors --\x1b[0m",
+  "\x1b[90m\u2588\u2588\x1b[91m\u2588\u2588\x1b[92m\u2588\u2588\x1b[93m\u2588\u2588\x1b[94m\u2588\u2588\x1b[95m\u2588\u2588\x1b[96m\u2588\u2588\x1b[97m\u2588\u2588\x1b[0m",
   "",
-  "\x1b[1;34m$\x1b[0m cat colors.txt",
-  "\x1b[31mRed\x1b[0m \x1b[32mGreen\x1b[0m \x1b[33mYellow\x1b[0m \x1b[34mBlue\x1b[0m",
-  "\x1b[35mMagenta\x1b[0m \x1b[36mCyan\x1b[0m \x1b[37mWhite\x1b[0m",
+  // Text styles
+  "\x1b[2m-- Text Styles --\x1b[0m",
+  "\x1b[1mBold\x1b[0m \x1b[2mDim\x1b[0m \x1b[3mItalic\x1b[0m \x1b[4mUnderline\x1b[0m",
   "",
-  "\x1b[1;34m$\x1b[0m _",
+  // Ready prompt
+  "\x1b[1;32muser@host\x1b[0m:\x1b[1;34m~\x1b[0m$ _",
 ].join("\r\n");
 
 // Default ANSI colors as fallback

@@ -5,6 +5,8 @@ import {
   MousePointer2,
   Cpu,
   Keyboard,
+  Mouse,
+  Clipboard,
   Settings,
   Terminal,
   Wrench,
@@ -54,6 +56,18 @@ export const categories: CategoryInfo[] = [
     name: "Keybindings",
     description: "Custom keyboard shortcuts and key tables",
     icon: Keyboard,
+  },
+  {
+    id: "mouse",
+    name: "Mouse",
+    description: "Mouse behavior, bindings, and scrolling",
+    icon: Mouse,
+  },
+  {
+    id: "clipboard",
+    name: "Clipboard",
+    description: "Copy, paste, and selection behavior",
+    icon: Clipboard,
   },
   {
     id: "general",

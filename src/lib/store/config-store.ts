@@ -3,10 +3,22 @@ import { persist } from "zustand/middleware";
 
 import { getOptionById, getDefaultValue, allOptions } from "@/data/wezterm-options";
 
+// Profile type
+export interface Profile {
+  id: string;
+  name: string;
+  config: Record<string, unknown>;
+  appliedTheme: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
 // Type for persisted state validation
 interface PersistedState {
   config: Record<string, unknown>;
   appliedTheme: string | null;
+  profiles: Profile[];
+  activeProfileId: string | null;
 }
 
 // Validate persisted state structure
@@ -15,7 +27,14 @@ function isValidPersistedState(state: unknown): state is PersistedState {
   const s = state as Record<string, unknown>;
   if (typeof s.config !== "object" || s.config === null) return false;
   if (s.appliedTheme !== null && typeof s.appliedTheme !== "string") return false;
+  // Profiles are optional for backwards compatibility
+  if (s.profiles !== undefined && !Array.isArray(s.profiles)) return false;
   return true;
+}
+
+// Generate unique ID
+function generateId(): string {
+  return `profile_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 }
 
 export interface ConfigStore {
@@ -27,6 +46,10 @@ export interface ConfigStore {
   
   // Active category in the UI
   activeCategory: string;
+  
+  // Profiles
+  profiles: Profile[];
+  activeProfileId: string | null;
   
   // Actions
   setValue: (key: string, value: unknown) => void;
@@ -46,6 +69,15 @@ export interface ConfigStore {
   // Import/Export
   importConfig: (values: Record<string, unknown>) => void;
   exportConfig: () => Record<string, unknown>;
+  
+  // Profile actions
+  createProfile: (name: string) => Profile;
+  saveProfile: (id: string) => void;
+  loadProfile: (id: string) => void;
+  deleteProfile: (id: string) => void;
+  renameProfile: (id: string, name: string) => void;
+  duplicateProfile: (id: string, newName: string) => Profile;
+  getActiveProfile: () => Profile | null;
 }
 
 export const useConfigStore = create<ConfigStore>()(
@@ -54,6 +86,8 @@ export const useConfigStore = create<ConfigStore>()(
       config: {},
       appliedTheme: null,
       activeCategory: "colors",
+      profiles: [],
+      activeProfileId: null,
 
       setValue: (key: string, value: unknown) => {
         const defaultValue = getDefaultValue(key);
@@ -176,13 +210,109 @@ export const useConfigStore = create<ConfigStore>()(
         
         return fullConfig;
       },
+
+      // Profile management
+      createProfile: (name: string) => {
+        const state = get();
+        const now = Date.now();
+        const newProfile: Profile = {
+          id: generateId(),
+          name,
+          config: { ...state.config },
+          appliedTheme: state.appliedTheme,
+          createdAt: now,
+          updatedAt: now,
+        };
+        
+        set((state) => ({
+          profiles: [...state.profiles, newProfile],
+          activeProfileId: newProfile.id,
+        }));
+        
+        return newProfile;
+      },
+
+      saveProfile: (id: string) => {
+        const currentState = get();
+        set({
+          profiles: currentState.profiles.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  config: { ...currentState.config },
+                  appliedTheme: currentState.appliedTheme,
+                  updatedAt: Date.now(),
+                }
+              : p
+          ),
+        });
+      },
+
+      loadProfile: (id: string) => {
+        const state = get();
+        const profile = state.profiles.find((p) => p.id === id);
+        if (profile) {
+          set({
+            config: { ...profile.config },
+            appliedTheme: profile.appliedTheme,
+            activeProfileId: id,
+          });
+        }
+      },
+
+      deleteProfile: (id: string) => {
+        set((state) => ({
+          profiles: state.profiles.filter((p) => p.id !== id),
+          activeProfileId: state.activeProfileId === id ? null : state.activeProfileId,
+        }));
+      },
+
+      renameProfile: (id: string, name: string) => {
+        set((state) => ({
+          profiles: state.profiles.map((p) =>
+            p.id === id ? { ...p, name, updatedAt: Date.now() } : p
+          ),
+        }));
+      },
+
+      duplicateProfile: (id: string, newName: string) => {
+        const state = get();
+        const profile = state.profiles.find((p) => p.id === id);
+        if (!profile) {
+          throw new Error(`Profile ${id} not found`);
+        }
+        
+        const now = Date.now();
+        const newProfile: Profile = {
+          id: generateId(),
+          name: newName,
+          config: { ...profile.config },
+          appliedTheme: profile.appliedTheme,
+          createdAt: now,
+          updatedAt: now,
+        };
+        
+        set((state) => ({
+          profiles: [...state.profiles, newProfile],
+        }));
+        
+        return newProfile;
+      },
+
+      getActiveProfile: () => {
+        const state = get();
+        if (!state.activeProfileId) return null;
+        return state.profiles.find((p) => p.id === state.activeProfileId) || null;
+      },
     }),
     {
       name: "wezterm-config-storage",
-      // Only persist config and appliedTheme, not UI state
+      // Persist config, theme, and profiles - not UI state
       partialize: (state) => ({
         config: state.config,
         appliedTheme: state.appliedTheme,
+        profiles: state.profiles,
+        activeProfileId: state.activeProfileId,
       }),
       // Validate and merge persisted state safely
       merge: (persistedState, currentState) => {
@@ -202,10 +332,22 @@ export const useConfigStore = create<ConfigStore>()(
           }
         }
         
+        // Validate profiles (backwards compatible)
+        const validatedProfiles: Profile[] = [];
+        if (Array.isArray(persistedState.profiles)) {
+          for (const profile of persistedState.profiles) {
+            if (profile && typeof profile === 'object' && profile.id && profile.name) {
+              validatedProfiles.push(profile as Profile);
+            }
+          }
+        }
+        
         return {
           ...currentState,
           config: validatedConfig,
           appliedTheme: persistedState.appliedTheme,
+          profiles: validatedProfiles,
+          activeProfileId: persistedState.activeProfileId || null,
         };
       },
     }

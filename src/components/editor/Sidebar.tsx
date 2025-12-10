@@ -8,6 +8,7 @@ import { getOptionsByCategory } from "@/data/wezterm-options";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SearchCommand } from "./SearchCommand";
+import { ProfileManager } from "./ProfileManager";
 
 export function Sidebar() {
   const activeCategory = useConfigStore((state) => state.activeCategory);
@@ -34,7 +35,8 @@ export function Sidebar() {
         </div>
       </div>
 
-      <div className="p-2 border-b border-border">
+      <div className="p-2 border-b border-border space-y-2">
+        <ProfileManager />
         <SearchCommand />
       </div>
 
