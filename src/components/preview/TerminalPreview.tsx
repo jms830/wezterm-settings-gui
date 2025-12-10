@@ -63,10 +63,10 @@ export function TerminalPreview() {
   const getValue = useConfigStore((state) => state.getValue);
 
   // Build font family with proper fallbacks for the preview
-  // The user's configured font is shown but we use web-safe fallbacks for rendering
+  // IMPORTANT: xterm.js doesn't resolve CSS variables, so we must use actual font names only
+  // Use web-safe monospace fonts as fallbacks
   const configuredFont = (getValue("font_family") as string) || "JetBrains Mono";
-  // Use var(--font-jetbrains-mono) which is loaded via next/font, with web-safe monospace fallbacks
-  const fontFamily = `${configuredFont}, var(--font-terminal), "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", Consolas, "Liberation Mono", Menlo, Monaco, monospace`;
+  const fontFamily = `"${configuredFont}", "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", Consolas, "Liberation Mono", Menlo, Monaco, "Courier New", monospace`;
   
   const fontSize = (getValue("font_size") as number) || 14;
   const lineHeight = (getValue("line_height") as number) || 1.0;
