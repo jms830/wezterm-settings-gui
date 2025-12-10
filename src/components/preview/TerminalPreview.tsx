@@ -3,7 +3,6 @@
 import { useEffect, useRef, useMemo } from "react";
 import { Terminal } from "@xterm/xterm";
 import { CanvasAddon } from "@xterm/addon-canvas";
-import { FitAddon } from "@xterm/addon-fit";
 import { useConfigStore } from "@/lib/store/config-store";
 import "@xterm/xterm/css/xterm.css";
 
@@ -29,21 +28,23 @@ function shouldCursorBlink(weztermStyle: string): boolean {
 }
 
 // Demo content to display in the terminal preview
-// Keep lines short to avoid wrapping at narrow widths
-const DEMO_CONTENT = `\x1b[1;34m$\x1b[0m ls -la
-\x1b[1;36mdrwxr-xr-x\x1b[0m  user  4096  \x1b[1;34m.\x1b[0m
-\x1b[1;36mdrwxr-xr-x\x1b[0m  user  4096  \x1b[1;34m..\x1b[0m
-\x1b[1;36m-rw-r--r--\x1b[0m  user   220  .bashrc
-\x1b[1;32m-rwxr-xr-x\x1b[0m  user  8192  \x1b[1;32mwezterm.lua\x1b[0m
-
-\x1b[1;34m$\x1b[0m echo "Hello, \x1b[1;33mWezTerm\x1b[0m!"
-Hello, \x1b[1;33mWezTerm\x1b[0m!
-
-\x1b[1;34m$\x1b[0m cat colors.txt
-\x1b[31mRed\x1b[0m \x1b[32mGreen\x1b[0m \x1b[33mYellow\x1b[0m \x1b[34mBlue\x1b[0m
-\x1b[35mMagenta\x1b[0m \x1b[36mCyan\x1b[0m \x1b[37mWhite\x1b[0m
-
-\x1b[1;34m$\x1b[0m \x1b[5m_\x1b[0m`;
+// Use \r\n for proper line breaks, no leading spaces
+const DEMO_CONTENT = [
+  "\x1b[1;34m$\x1b[0m ls -la",
+  "\x1b[1;36mdrwxr-xr-x\x1b[0m  user  \x1b[1;34m.\x1b[0m",
+  "\x1b[1;36mdrwxr-xr-x\x1b[0m  user  \x1b[1;34m..\x1b[0m",
+  "\x1b[1;36m-rw-r--r--\x1b[0m  user  .bashrc",
+  "\x1b[1;32m-rwxr-xr-x\x1b[0m  user  \x1b[1;32mwezterm.lua\x1b[0m",
+  "",
+  "\x1b[1;34m$\x1b[0m echo \"Hello, \x1b[1;33mWezTerm\x1b[0m!\"",
+  "Hello, \x1b[1;33mWezTerm\x1b[0m!",
+  "",
+  "\x1b[1;34m$\x1b[0m cat colors.txt",
+  "\x1b[31mRed\x1b[0m \x1b[32mGreen\x1b[0m \x1b[33mYellow\x1b[0m \x1b[34mBlue\x1b[0m",
+  "\x1b[35mMagenta\x1b[0m \x1b[36mCyan\x1b[0m \x1b[37mWhite\x1b[0m",
+  "",
+  "\x1b[1;34m$\x1b[0m _",
+].join("\r\n");
 
 // Default ANSI colors as fallback
 const DEFAULT_ANSI = [
@@ -155,33 +156,17 @@ export function TerminalPreview() {
         allowTransparency: true,
         disableStdin: true, // Read-only preview
         rows: 14,
-        cols: 80,
+        cols: 45, // Fixed width to prevent wrapping
         letterSpacing: 0,
       });
 
       const canvasAddon = new CanvasAddon();
-      const fitAddon = new FitAddon();
       terminal.loadAddon(canvasAddon);
-      terminal.loadAddon(fitAddon);
 
       terminal.open(terminalRef.current);
-      
-      // Fit terminal to container, then write content
-      fitAddon.fit();
       terminal.write(DEMO_CONTENT);
 
       xtermRef.current = terminal;
-
-      // Handle resize
-      const resizeObserver = new ResizeObserver(() => {
-        if (isMounted) {
-          fitAddon.fit();
-        }
-      });
-      resizeObserver.observe(terminalRef.current);
-
-      // Store for cleanup
-      (terminal as unknown as { _resizeObserver: ResizeObserver })._resizeObserver = resizeObserver;
     };
     
     initTerminal();
@@ -191,10 +176,6 @@ export function TerminalPreview() {
       isInitializedRef.current = false;
       
       if (terminal) {
-        const resizeObserver = (terminal as unknown as { _resizeObserver?: ResizeObserver })._resizeObserver;
-        if (resizeObserver) {
-          resizeObserver.disconnect();
-        }
         terminal.dispose();
       }
       
