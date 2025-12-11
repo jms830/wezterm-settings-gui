@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, GitBranch, Terminal } from "lucide-react";
+import { ExternalLink, GitBranch, Terminal, Coffee } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/categories";
 import { useConfigStore } from "@/lib/store/config-store";
@@ -107,6 +107,21 @@ export function Sidebar() {
             >
               <GitBranch className="h-3 w-3 mr-2" />
               Source Code
+            </a>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="justify-start h-8 text-xs text-muted-foreground hover:text-foreground"
+            asChild
+          >
+            <a
+              href="https://www.buymeacoffee.com/jms830"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Coffee className="h-3 w-3 mr-2" />
+              Buy Me a Coffee
             </a>
           </Button>
         </div>
