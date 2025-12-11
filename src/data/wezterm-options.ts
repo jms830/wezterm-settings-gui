@@ -847,12 +847,22 @@ const shellOptions: ConfigOption[] = [
   {
     id: "default_prog",
     name: "Default Program",
-    description: "The program to run in new tabs/windows. Leave empty for default shell.",
+    description: "The program to run in new tabs/windows. Examples: pwsh.exe (PowerShell), wsl.exe (WSL), /bin/zsh, /bin/bash. Leave empty for system default.",
     type: "string",
     default: "",
     category: "shell",
-    placeholder: "/bin/zsh",
+    placeholder: "pwsh.exe, wsl.exe, /bin/zsh",
     docUrl: `${WEZTERM_DOCS}/default_prog.html`,
+  } as StringOption,
+  {
+    id: "default_domain",
+    name: "Default Domain",
+    description: "The default multiplexing domain. Use 'WSL:Ubuntu' or similar for WSL distributions.",
+    type: "string",
+    default: "",
+    category: "shell",
+    placeholder: "local, WSL:Ubuntu, WSL:Debian",
+    docUrl: `${WEZTERM_DOCS}/default_domain.html`,
   } as StringOption,
   {
     id: "default_cwd",
@@ -872,6 +882,16 @@ const shellOptions: ConfigOption[] = [
     default: "xterm-256color",
     category: "shell",
     docUrl: `${WEZTERM_DOCS}/term.html`,
+  } as StringOption,
+  {
+    id: "set_environment_variables",
+    name: "Environment Variables",
+    description: "Additional environment variables to set (JSON format, e.g. {\"FOO\": \"bar\"}).",
+    type: "string",
+    default: "",
+    category: "shell",
+    placeholder: '{"EDITOR": "vim"}',
+    docUrl: `${WEZTERM_DOCS}/set_environment_variables.html`,
   } as StringOption,
 ];
 
