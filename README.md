@@ -61,6 +61,10 @@ bun run lint
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Inspiration
+
+Inspired by [Spectre – Ghostty Config Generator](https://github.com/nicholascloud/spectre-ghostty-config).
+
 ## License
 
 MIT
