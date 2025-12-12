@@ -7,7 +7,9 @@ import type {
   ColorOption,
   PaletteOption,
   KeybindOption,
+  LaunchMenuOption,
   Keybind,
+  LaunchMenuItem,
 } from "@/lib/schema/types";
 
 // ============================================================================
@@ -893,6 +895,15 @@ const shellOptions: ConfigOption[] = [
     placeholder: '{"EDITOR": "vim"}',
     docUrl: `${WEZTERM_DOCS}/set_environment_variables.html`,
   } as StringOption,
+  {
+    id: "launch_menu",
+    name: "Launch Menu",
+    description: "Custom entries for the launch menu (right-click the + button). Add shells, WSL distros, or other programs.",
+    type: "launchmenu",
+    default: [] as LaunchMenuItem[],
+    category: "shell",
+    docUrl: `${WEZTERM_DOCS}/launch_menu.html`,
+  } as LaunchMenuOption,
 ];
 
 // ============================================================================

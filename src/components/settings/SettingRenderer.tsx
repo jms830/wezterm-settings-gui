@@ -8,6 +8,7 @@ import { SwitchInput } from "./SwitchInput";
 import { PaletteInput } from "./PaletteInput";
 import { TextInput } from "./TextInput";
 import { KeybindInput } from "./KeybindInput";
+import { LaunchMenuInput } from "./LaunchMenuInput";
 
 interface SettingRendererProps {
   option: ConfigOption;
@@ -41,6 +42,9 @@ export function SettingRenderer({ option }: SettingRendererProps) {
     
     case "keybind":
       return <KeybindInput option={option} />;
+    
+    case "launchmenu":
+      return <LaunchMenuInput option={option} />;
     
     case "font":
       // TODO: Implement FontInput for font configuration

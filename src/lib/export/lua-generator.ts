@@ -1,5 +1,5 @@
 import { allOptions, getOptionById, getDefaultValue } from "@/data/wezterm-options";
-import type { Keybind } from "@/lib/schema/types";
+import type { Keybind, LaunchMenuItem } from "@/lib/schema/types";
 
 // Convert a JavaScript value to Lua syntax
 function toLua(value: unknown, indent = 0): string {
@@ -83,6 +83,31 @@ function generateKeybindLua(keybind: Keybind): string {
   return `{ key = "${keybind.key}", action = ${action} }`;
 }
 
+// Generate launch menu item Lua code
+function generateLaunchMenuItemLua(item: LaunchMenuItem): string {
+  const parts: string[] = [];
+  
+  parts.push(`label = ${toLua(item.label)}`);
+  
+  if (item.args && item.args.length > 0) {
+    parts.push(`args = ${toLua(item.args)}`);
+  }
+  
+  if (item.cwd) {
+    parts.push(`cwd = ${toLua(item.cwd)}`);
+  }
+  
+  if (item.domain) {
+    parts.push(`domain = { DomainName = ${toLua(item.domain)} }`);
+  }
+  
+  if (item.set_environment_variables && Object.keys(item.set_environment_variables).length > 0) {
+    parts.push(`set_environment_variables = ${toLua(item.set_environment_variables)}`);
+  }
+  
+  return `{ ${parts.join(", ")} }`;
+}
+
 // Group options by their Lua config structure
 interface GeneratorOptions {
   includeDefaults?: boolean;
@@ -143,6 +168,20 @@ export function generateLuaConfig(
         categories["keybindings"].push(`  ${generateKeybindLua(keybind)},`);
       }
       categories["keybindings"].push("}");
+      continue;
+    }
+    
+    // Handle launch_menu
+    if (option.id === "launch_menu" && Array.isArray(value) && value.length > 0) {
+      if (!categories["shell"]) {
+        categories["shell"] = [];
+      }
+      categories["shell"].push("config.launch_menu = {");
+      for (const item of value as LaunchMenuItem[]) {
+        categories["shell"].push(`  ${generateLaunchMenuItemLua(item)},`);
+      }
+      categories["shell"].push("}");
+      categories["shell"].push("");
       continue;
     }
     

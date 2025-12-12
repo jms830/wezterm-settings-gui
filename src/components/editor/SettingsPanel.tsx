@@ -7,6 +7,7 @@ import { getCategoryById } from "@/data/categories";
 import { SettingRenderer } from "@/components/settings/SettingRenderer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ThemeGrid } from "@/components/settings/ThemePicker";
+import { QuickActionsInput } from "@/components/settings/QuickActionsInput";
 
 export function SettingsPanel() {
   const activeCategory = useConfigStore((state) => state.activeCategory);
@@ -72,6 +73,18 @@ export function SettingsPanel() {
           {/* Theme Grid for colors category */}
           {activeCategory === "colors" && (
             <ThemeGrid />
+          )}
+
+          {/* Quick Actions for keybindings category */}
+          {activeCategory === "keys" && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                  Quick Actions
+                </h3>
+                <QuickActionsInput />
+              </div>
+            </div>
           )}
 
           {/* Options without subcategory */}

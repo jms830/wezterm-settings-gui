@@ -9,6 +9,7 @@ export type OptionType =
   | "color"
   | "palette"
   | "keybind"
+  | "launchmenu"
   | "duration"
   | "font"
   | "padding";
@@ -92,6 +93,11 @@ export interface KeybindOption extends BaseConfigOption {
   default: Keybind[];
 }
 
+export interface LaunchMenuOption extends BaseConfigOption {
+  type: "launchmenu";
+  default: LaunchMenuItem[];
+}
+
 export interface DurationOption extends BaseConfigOption {
   type: "duration";
   default: number;
@@ -119,6 +125,7 @@ export type ConfigOption =
   | ColorOption
   | PaletteOption
   | KeybindOption
+  | LaunchMenuOption
   | DurationOption
   | FontOption
   | PaddingOption;
@@ -129,6 +136,14 @@ export interface Keybind {
   mods?: string[];
   action: string;
   actionArgs?: Record<string, unknown>;
+}
+
+export interface LaunchMenuItem {
+  label: string;
+  args?: string[];
+  cwd?: string;
+  domain?: string;
+  set_environment_variables?: Record<string, string>;
 }
 
 export interface FontConfig {
