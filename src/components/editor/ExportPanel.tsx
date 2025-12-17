@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Download, Copy, Check, RotateCcw, Code2, Upload, AlertCircle, Loader2 } from "lucide-react";
+import { Download, Copy, Check, RotateCcw, Code2, Upload, AlertCircle, Loader2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useConfigStore } from "@/lib/store/config-store";
 import { generateLuaConfig, downloadLuaConfig, copyLuaConfig } from "@/lib/export/lua-generator";
 import { parseLuaConfig } from "@/lib/export/lua-parser";
+import { ZipImporter } from "./ZipImporter";
 
 export function ExportPanel() {
   const config = useConfigStore((state) => state.config);
@@ -42,6 +43,9 @@ export function ExportPanel() {
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -83,6 +87,30 @@ export function ExportPanel() {
         setCopyError(null);
         errorTimeoutRef.current = null;
       }, 3000);
+    }
+  }, [config]);
+
+  const handleShare = useCallback(async () => {
+    try {
+      const jsonConfig = JSON.stringify(config);
+      
+      const bytes = new TextEncoder().encode(jsonConfig);
+      const binString = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+      const base64Config = btoa(binString);
+      
+      const url = `${window.location.origin}${window.location.pathname}?config=${base64Config}`;
+      
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setCopyError(null);
+      
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        copyTimeoutRef.current = null;
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to generate share link:", error);
+      setCopyError("Failed to generate share link");
     }
   }, [config]);
 
@@ -188,12 +216,26 @@ export function ExportPanel() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Zip Import */}
+      <ZipImporter />
+
+      {/* Share Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleShare}
+        aria-label="Share configuration via URL"
+      >
+        <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
+        Share
+      </Button>
+
       {/* Import Dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogTrigger asChild>
           <Button variant="outline" size="sm" aria-label="Import configuration file">
             <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
-            Import
+            Import Lua
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-2xl">

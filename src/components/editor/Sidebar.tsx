@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ExternalLink, GitBranch, Terminal, Coffee } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/categories";
@@ -24,15 +25,15 @@ export function Sidebar() {
   return (
     <aside className="w-64 border-r border-border bg-muted/30 flex flex-col">
       <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-md bg-primary/10">
-            <Terminal className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold text-foreground">WezTerm</h1>
-            <p className="text-xs text-muted-foreground">Configuration Editor</p>
-          </div>
-        </div>
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="p-1.5 rounded-md bg-primary/10">
+              <Terminal className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">WezTerm</h1>
+              <p className="text-xs text-muted-foreground">Configuration Editor</p>
+            </div>
+          </Link>
       </div>
 
       <div className="p-2 border-b border-border space-y-2">
